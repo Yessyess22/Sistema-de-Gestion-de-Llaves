@@ -1,0 +1,13 @@
+@model SistemaGestionLlaves.Models.Usuario
+@{
+    ViewData["Title"] = "Crear Usuario (Backend Stub)";
+}
+<h2>Crear Usuario</h2>
+<form asp-action="Create" method="post">
+    <!-- El frontend implementará sus propios campos. Estos son temporales para backend routing. -->
+    <select name="IdPersona" asp-items="ViewBag.IdPersona"></select>
+    <select name="IdRol" asp-items="ViewBag.IdRol"></select>
+    <input type="text" name="NombreUsuario" placeholder="Nombre Usuario" />
+    <input type="password" name="PasswordHash" placeholder="Contraseña" />
+    <button type="submit">Guardar</button>
+</form>

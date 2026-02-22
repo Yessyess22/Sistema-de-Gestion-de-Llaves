@@ -1,0 +1,15 @@
+@model SistemaGestionLlaves.Models.Usuario
+@{
+    ViewData["Title"] = "Editar Usuario (Backend Stub)";
+}
+<h2>Editar Usuario: @Model.NombreUsuario</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="IdUsuario" />
+    <select name="IdPersona" asp-items="ViewBag.IdPersona"></select>
+    <select name="IdRol" asp-items="ViewBag.IdRol"></select>
+    <input type="text" asp-for="NombreUsuario" />
+    <!-- Dejar en blanco si no se cambia -->
+    <input type="password" name="PasswordHash" placeholder="Nueva Contraseña (Opcional)" />
+    <input type="hidden" asp-for="Estado" />
+    <button type="submit">Actualizar</button>
+</form>

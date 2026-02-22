@@ -48,3 +48,6 @@ networks:
   gestion_llaves_network:
     name: gestion_llaves_net
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.90.0/24

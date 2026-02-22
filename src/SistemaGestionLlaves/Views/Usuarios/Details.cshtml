@@ -1,0 +1,14 @@
+@model SistemaGestionLlaves.Models.Usuario
+@{
+    ViewData["Title"] = "Detalles Usuario (Backend Stub)";
+}
+<h2>Detalles de Usuario: @Model.NombreUsuario</h2>
+<ul>
+    <li>ID: @Model.IdUsuario</li>
+    <li>Persona: @Model.Persona.NombreCompleto</li>
+    <li>Rol: @Model.Rol.Nombre</li>
+    <li>Estado: @Model.Estado</li>
+    <li>Inicio: @Model.FechaInicio</li>
+    <li>Fin: @Model.FechaFin</li>
+</ul>
+<p><a asp-action="Index">Volver a la Lista</a></p>

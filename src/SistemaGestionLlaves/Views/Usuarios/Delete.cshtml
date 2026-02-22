@@ -1,0 +1,11 @@
+@model SistemaGestionLlaves.Models.Usuario
+@{
+    ViewData["Title"] = "Eliminar Usuario (Backend Stub)";
+}
+<h2>Eliminar Usuario: @Model.NombreUsuario</h2>
+<p>¿Estás seguro de que deseas eliminar este usuario?</p>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="IdUsuario" />
+    <button type="submit">Eliminar Permanentemente</button>
+    <a asp-action="Index">Cancelar</a>
+</form>
