@@ -32,4 +32,42 @@ public class Usuario
     public ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
     public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
     public ICollection<Auditoria> Auditorias { get; set; } = new List<Auditoria>();
+    // ----------------------
+    // Lógica de Usuario
+    // ----------------------
+    // Autenticación: verifica usuario y contraseña (MD5)
+    public static bool Autenticar(SistemaGestionLlaves.Data.ApplicationDbContext db, string nombre, string password)
+    {
+        string hash = CalcularMD5(password);
+        return db.Usuarios.Any(u => u.NombreUsuario == nombre && u.PasswordHash == hash);
+    }
+
+    // Calcula el hash MD5 de una cadena
+    public static string CalcularMD5(string input)
+    {
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var hashBytes = md5.ComputeHash(bytes);
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+    }
+
+    // Buscar usuario por nombre
+    public static Usuario? BuscarPorNombre(SistemaGestionLlaves.Data.ApplicationDbContext db, string nombre)
+    {
+        return db.Usuarios.FirstOrDefault(u => u.NombreUsuario == nombre);
+    }
+
+    // Crear usuario
+    public static void CrearUsuario(SistemaGestionLlaves.Data.ApplicationDbContext db, string nombre, string password, int idRol, int idPersona)
+    {
+        var usuario = new Usuario
+        {
+            NombreUsuario = nombre,
+            PasswordHash = CalcularMD5(password),
+            IdRol = idRol,
+            IdPersona = idPersona
+        };
+        db.Usuarios.Add(usuario);
+        db.SaveChanges();
+    }
 }
