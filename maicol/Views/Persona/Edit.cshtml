@@ -1,0 +1,142 @@
+@model Persona
+
+@{
+    ViewData["Title"] = "Editar Persona";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-edit"></i> @ViewData["Title"]
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" novalidate>
+                        <!-- Token CSRF -->
+                        @Html.AntiForgeryToken()
+
+                        <!-- ID Oculto -->
+                        <input type="hidden" asp-for="IdPersona" />
+
+                        <!-- Información del Registro -->
+                        <div class="alert alert-primary">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>ID:</strong> @Model.IdPersona |
+                            <strong>Nombre Completo:</strong> @Model.NombreCompleto
+                        </div>
+
+                        <!-- Sección de Información Personal -->
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-id-card"></i> Información Personal
+                        </h6>
+
+                        <!-- Nombres -->
+                        <div class="mb-3">
+                            <label asp-for="Nombres" class="form-label">Nombres <span class="text-danger">*</span></label>
+                            <input asp-for="Nombres" class="form-control" placeholder="Ej: Juan Carlos" />
+                            <span asp-validation-for="Nombres" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Apellidos en una fila -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ApellidoPaterno" class="form-label">Apellido Paterno <span class="text-danger">*</span></label>
+                                    <input asp-for="ApellidoPaterno" class="form-control" placeholder="Ej: García" />
+                                    <span asp-validation-for="ApellidoPaterno" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ApellidoMaterno" class="form-label">Apellido Materno <span class="text-danger">*</span></label>
+                                    <input asp-for="ApellidoMaterno" class="form-control" placeholder="Ej: López" />
+                                    <span asp-validation-for="ApellidoMaterno" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha de Nacimiento -->
+                        <div class="mb-3">
+                            <label asp-for="FechaNac" class="form-label">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                            <input asp-for="FechaNac" class="form-control" type="date" />
+                            <small class="text-muted">Edad actual: @Model.Edad años | Debe ser mayor de 18 años</small>
+                            <span asp-validation-for="FechaNac" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Sección de Contacto -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">
+                            <i class="fas fa-envelope"></i> Información de Contacto
+                        </h6>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="ejemplo@correo.com" />
+                            <small class="text-muted">Debe ser un correo válido y único</small>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="mb-3">
+                            <label asp-for="Telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                            <input asp-for="Telefono" class="form-control" placeholder="Ej: +591 76543210" />
+                            <small class="text-muted">Incluya código de país si es necesario</small>
+                            <span asp-validation-for="Telefono" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Sección de Identificación -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">
+                            <i class="fas fa-fingerprint"></i> Identificación
+                        </h6>
+
+                        <!-- Tipo -->
+                        <div class="mb-3">
+                            <label asp-for="Tipo" class="form-label">Tipo de Persona <span class="text-danger">*</span></label>
+                            <select asp-for="Tipo" class="form-select">
+                                <option value="">-- Seleccionar --</option>
+                                <option value="Documento">Documento (Persona Natural)</option>
+                                <option value="Empresa">Empresa (Persona Jurídica)</option>
+                            </select>
+                            <span asp-validation-for="Tipo" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Código -->
+                        <div class="mb-3">
+                            <label asp-for="Codigo" class="form-label">Código <span class="text-danger">*</span></label>
+                            <input asp-for="Codigo" class="form-control" placeholder="Ej: CODIGO001" />
+                            <span asp-validation-for="Codigo" class="text-danger small"></span>
+                        </div>
+
+                        <!-- CI -->
+                        <div class="mb-3">
+                            <label asp-for="CI" class="form-label">Cédula de Identidad (CI) <span class="text-danger">*</span></label>
+                            <input asp-for="CI" class="form-control" placeholder="Ej: 1234567" />
+                            <small class="text-muted">Debe ser único en el sistema</small>
+                            <span asp-validation-for="CI" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

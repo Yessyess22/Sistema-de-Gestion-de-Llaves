@@ -1,0 +1,123 @@
+@model Persona
+
+@{
+    ViewData["Title"] = "Eliminar Persona";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> @ViewData["Title"]
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <!-- Advertencia -->
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle"></i> <strong>¡Atención!</strong>
+                        <p class="mb-0 mt-2">
+                            Esta acción eliminará permanentemente a la persona del sistema.
+                            Esta operación <strong>no se puede deshacer</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Información de la Persona -->
+                    <h6 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-info-circle"></i> Información de la Persona a Eliminar
+                    </h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>ID:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="badge bg-primary">@Model.IdPersona</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Nombre Completo:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.NombreCompleto
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Correo Electrónico:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <a href="mailto:@Model.Email">@Model.Email</a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Teléfono:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <a href="tel:@Model.Telefono">@Model.Telefono</a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Tipo:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @if (Model.Tipo == "Empresa")
+                            {
+                                <span class="badge bg-info">
+                                    <i class="fas fa-building"></i> @Model.Tipo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fas fa-id-card"></i> @Model.Tipo
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Cédula de Identidad (CI):</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <code>@Model.CI</code>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Confirmación -->
+                    <div class="mt-4">
+                        <form asp-action="Delete" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.IdPersona" />
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-trash"></i> Confirmar Eliminación
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-lightbulb"></i> <strong>Consejo:</strong>
+                Si no está seguro, puede hacer clic en "Cancelar" y luego editar los datos si es necesario.
+            </div>
+        </div>
+    </div>
+</div>
