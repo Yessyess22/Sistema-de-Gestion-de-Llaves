@@ -1,0 +1,95 @@
+## .NET Core / ASP.NET Core
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+
+# Archivos de logs temporales
+*.log
+*.txt
+webapp_logs.txt
+docker_logs.txt
+
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+.idea/
+
+# Package directories
+packages/
+!packages/repositories.config
+*.nupkg
+artifacts/
+
+# Project-specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Build results
+*.VisualState.xml
+TestResult.xml
+
+## Dotnet publish output
+publish/
+
+## Docker
+.dockerignore
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# ASP.NET
+launchSettings.json
+appsettings.Development.json
+
+# Logs
+logs/
+*.log
+
+# Rider
+.idea/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# Misc
+.fake/
+.fake
