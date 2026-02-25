@@ -1,0 +1,128 @@
+{
+  "info": {
+    "name": "API Ambientes - Colección Postman",
+    "description": "Colección completa de endpoints de la API de Ambientes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Ambientes",
+      "item": [
+        {
+          "name": "1. Obtener todos los ambientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ambientes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ambientes"]
+            }
+          }
+        },
+        {
+          "name": "2. Obtener ambiente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ambientes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ambientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "3. Crear nuevo ambiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"LAB-003\",\n  \"nombre\": \"Laboratorio de Programación\",\n  \"tipoAmbiente\": \"Laboratorio\",\n  \"ubicacion\": \"Edificio C, Piso 1\",\n  \"estado\": \"Disponible\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ambientes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ambientes"]
+            }
+          }
+        },
+        {
+          "name": "4. Actualizar ambiente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"LAB-001\",\n  \"nombre\": \"Laboratorio de Informática 1 - Actualizado\",\n  \"tipoAmbiente\": \"Laboratorio\",\n  \"ubicacion\": \"Edificio A, Piso 2\",\n  \"estado\": \"Mantenimiento\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ambientes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ambientes", "1"]
+            }
+          }
+        },
+        {
+          "name": "5. Eliminar ambiente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ambientes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ambientes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Info de API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

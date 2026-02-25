@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Servicio PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: ambientes-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: ambientes_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=es_ES.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ambientes-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ambientes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Servicio Web API .NET
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ambientes-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__PostgreSQL: "Host=postgres;Port=5432;Database=ambientes_db;Username=admin;Password=admin123;Ssl Mode=Disable;"
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - ambientes-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ambientes-network:
+    driver: bridge
