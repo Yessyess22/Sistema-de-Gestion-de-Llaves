@@ -1,10 +1,196 @@
 @{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">🔑 Sistema de Gestión de Llaves</h1>
-    <p class="lead">Universidad Privada Domingo Savio - Sprint 1</p>
-    <p>El sistema está funcionando correctamente.</p>
-    <p>Base de datos inicializada con Entity Framework Core.</p>
+<div class="row g-4 mb-4">
+    <!-- Resumen Principal -->
+    <div class="col-lg-8">
+        <div class="row g-4 mb-4">
+            <!-- Tarjeta 1 (Azul oscuro / Teal simulando la tarjeta de crédito) -->
+            <div class="col-md-6">
+                <div class="ui-card bg-teal-card d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fs-5 fw-semibold"><i class="bi bi-building"></i> UPDS Sede</span>
+                            <span class="badge bg-light text-dark">Activo</span>
+                        </div>
+                        <h4 class="mb-1">Gestión Principal</h4>
+                        <p class="mb-4 opacity-75">Control de Accesos y Llaves</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-end mt-4">
+                        <div>
+                            <small class="opacity-75 d-block">Total Llaves Registradas</small>
+                            <span class="fs-3 fw-bold">1,248</span>
+                        </div>
+                        <i class="bi bi-key-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2 -->
+            <div class="col-md-6">
+                <div class="ui-card text-center d-flex flex-column justify-content-center">
+                    <p class="card-title text-muted mb-2">Préstamos Activos</p>
+                    <h2 class="big-number mb-1">45</h2>
+                    <p class="number-subtitle mb-4">Al @DateTime.Now.ToString("dd 'de' MMMM, HH:mm")</p>
+                    
+                    <div class="d-flex justify-content-center gap-3 mt-2">
+                        <button class="btn btn-light rounded-3 px-4 py-2 border">
+                            <i class="bi bi-box-arrow-right d-block mb-1 fs-5"></i>
+                            Prestar
+                        </button>
+                        <button class="btn btn-light rounded-3 px-4 py-2 border">
+                            <i class="bi bi-box-arrow-in-left d-block mb-1 fs-5 text-success"></i>
+                            Recibir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Actividad Reciente -->
+        <div class="ui-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Actividad Reciente</h5>
+                <a href="#" class="text-decoration-none text-muted small">Ver todo <i class="bi bi-chevron-right"></i></a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <thead>
+                        <tr>
+                            <th>Usuario / Persona</th>
+                            <th>Llave / Ambiente</th>
+                            <th>Fecha y Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light rounded-3 p-2 text-primary">
+                                        <i class="bi bi-person-circle fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">Juan Pérez</h6>
+                                        <small class="text-muted">Docente</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">L-302</h6>
+                                <small class="text-muted">Laboratorio Redes</small>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">Hoy, 10:15 AM</h6>
+                            </td>
+                            <td>
+                                <span class="status-badge status-warning">Prestado</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light rounded-3 p-2 text-success">
+                                        <i class="bi bi-person-circle fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">Ana Gómez</h6>
+                                        <small class="text-muted">Administrativo</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">A-105</h6>
+                                <small class="text-muted">Aula Común</small>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">Ayer, 18:30 PM</h6>
+                            </td>
+                            <td>
+                                <span class="status-badge status-success">Devuelto</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light rounded-3 p-2 text-primary">
+                                        <i class="bi bi-person-circle fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">Carlos Ruiz</h6>
+                                        <small class="text-muted">Estudiante</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">AUD-1</h6>
+                                <small class="text-muted">Auditorio Principal</small>
+                            </td>
+                            <td>
+                                <h6 class="mb-0 fw-semibold">Ayer, 09:20 AM</h6>
+                            </td>
+                            <td>
+                                <span class="status-badge status-warning">Prestado</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Derecha (Estadísticas secundarias) -->
+    <div class="col-lg-4">
+        <!-- Gráfico circular (simulado con HTML/CSS) -->
+        <div class="ui-card mb-4 text-center">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Uso de Ambientes</h5>
+                <i class="bi bi-three-dots text-muted"></i>
+            </div>
+            
+            <!-- Simulación de Dona Chart -->
+            <div class="position-relative d-inline-block mt-3 mb-4">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                    <circle cx="80" cy="80" r="70" fill="none" stroke="#f1f5f9" stroke-width="15" />
+                    <circle cx="80" cy="80" r="70" fill="none" stroke="#0369a1" stroke-width="15" stroke-dasharray="330" stroke-dashoffset="80" stroke-linecap="round" transform="rotate(-90 80 80)" />
+                </svg>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                    <h3 class="mb-0 fw-bold">75%</h3>
+                    <small class="text-muted">Ocupación</small>
+                </div>
+            </div>
+            
+            <div class="bg-light rounded-3 p-3">
+                <small class="text-muted d-block text-uppercase fw-semibold mb-1">Total Ambientes Usados</small>
+                <span class="fs-5 fw-bold text-dark">120 / 160</span>
+            </div>
+        </div>
+        
+        <!-- Alertas / Notificaciones pendientes -->
+        <div class="ui-card">
+            <h5 class="card-title mb-4">Alertas Pendientes</h5>
+            
+            <div class="d-flex align-items-start gap-3 mb-3 border-bottom pb-3">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1 fw-semibold">Llave no devuelta</h6>
+                    <p class="text-muted small mb-0">La llave L-205 debió devolverse a las 12:00.</p>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-start gap-3">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1 fw-semibold">Reserva próxima</h6>
+                    <p class="text-muted small mb-0">Reserva de Auditorio 2 por confirmar a las 15:00.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
