@@ -97,5 +97,40 @@ public static class SeedData
             context.Usuarios.Add(usuarioAdmin);
             await context.SaveChangesAsync();
         }
+
+        // ── Ambientes de prueba ──────────────────────────────
+        if (!context.Ambientes.Any())
+        {
+            var tipoOficina = context.TiposAmbiente.First(t => t.NombreTipo == "Oficina");
+            var tipoLab     = context.TiposAmbiente.First(t => t.NombreTipo == "Laboratorio");
+            var tipoCom     = context.TiposAmbiente.First(t => t.NombreTipo == "Área común");
+
+            context.Ambientes.AddRange(
+                new Ambiente { Codigo = "A-101", Nombre = "Oficina Administración",   Ubicacion = "Piso 1 - Bloque A", IdTipo = tipoOficina.IdTipo, Estado = "A" },
+                new Ambiente { Codigo = "LAB-01", Nombre = "Laboratorio de Cómputo 1", Ubicacion = "Piso 2 - Bloque B", IdTipo = tipoLab.IdTipo,     Estado = "A" },
+                new Ambiente { Codigo = "LAB-02", Nombre = "Laboratorio de Cómputo 2", Ubicacion = "Piso 2 - Bloque B", IdTipo = tipoLab.IdTipo,     Estado = "A" },
+                new Ambiente { Codigo = "SAL-01", Nombre = "Sala de Reuniones",        Ubicacion = "Piso 1 - Bloque C", IdTipo = tipoCom.IdTipo,     Estado = "A" }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // ── Llaves de prueba ─────────────────────────────────
+        if (!context.Llaves.Any())
+        {
+            var oficina = context.Ambientes.First(a => a.Codigo == "A-101");
+            var lab1    = context.Ambientes.First(a => a.Codigo == "LAB-01");
+            var lab2    = context.Ambientes.First(a => a.Codigo == "LAB-02");
+            var sala    = context.Ambientes.First(a => a.Codigo == "SAL-01");
+
+            context.Llaves.AddRange(
+                new Llave { Codigo = "LL-ADM-01", NumCopias = 2, IdAmbiente = oficina.IdAmbiente, EsMaestra = true,  Estado = "D", Observaciones = "Llave maestra - Administración" },
+                new Llave { Codigo = "LL-LAB1-01", NumCopias = 1, IdAmbiente = lab1.IdAmbiente,   EsMaestra = false, Estado = "D", Observaciones = "Laboratorio 1 - copia A" },
+                new Llave { Codigo = "LL-LAB1-02", NumCopias = 1, IdAmbiente = lab1.IdAmbiente,   EsMaestra = false, Estado = "P", Observaciones = "Laboratorio 1 - copia B (prestada)" },
+                new Llave { Codigo = "LL-LAB2-01", NumCopias = 1, IdAmbiente = lab2.IdAmbiente,   EsMaestra = false, Estado = "D" },
+                new Llave { Codigo = "LL-SAL-01",  NumCopias = 3, IdAmbiente = sala.IdAmbiente,   EsMaestra = false, Estado = "D", Observaciones = "Sala de reuniones" },
+                new Llave { Codigo = "LL-INAC-01", NumCopias = 1, IdAmbiente = oficina.IdAmbiente, EsMaestra = false, Estado = "I", Observaciones = "Fuera de servicio" }
+            );
+            await context.SaveChangesAsync();
+        }
     }
 }
