@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace SistemaGestionLlaves.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +16,12 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "IntentoAcceso",
                 columns: table => new
                 {
-                    id_intento = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombre_usuario = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    fecha_hora = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    ip = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    exitoso = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                    id_intento = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_usuario = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    ip = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    exitoso = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -31,10 +32,10 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Permisos",
                 columns: table => new
                 {
-                    id_permiso = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombre_permiso = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true)
+                    id_permiso = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_permiso = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    descripcion = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -45,16 +46,16 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Persona",
                 columns: table => new
                 {
-                    id_persona = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombres = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    apellidos = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ci = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    id_persona = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombres = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    apellidos = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ci = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     fecha_nacimiento = table.Column<DateOnly>(type: "date", nullable: true),
-                    genero = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: true),
-                    correo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    celular = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "A")
+                    genero = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: true),
+                    correo = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    celular = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A")
                 },
                 constraints: table =>
                 {
@@ -65,11 +66,11 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Rol",
                 columns: table => new
                 {
-                    id_rol = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombre_rol = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    descripcion = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "A")
+                    id_rol = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_rol = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    descripcion = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A")
                 },
                 constraints: table =>
                 {
@@ -80,9 +81,9 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "TipoAmbiente",
                 columns: table => new
                 {
-                    id_tipo = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombre_tipo = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
+                    id_tipo = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_tipo = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,8 +94,8 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "RolPermisos",
                 columns: table => new
                 {
-                    id_rol = table.Column<int>(type: "int", nullable: false),
-                    id_permiso = table.Column<int>(type: "int", nullable: false)
+                    id_rol = table.Column<int>(type: "integer", nullable: false),
+                    id_permiso = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,15 +118,15 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Usuario",
                 columns: table => new
                 {
-                    id_usuario = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_persona = table.Column<int>(type: "int", nullable: false),
-                    id_rol = table.Column<int>(type: "int", nullable: false),
-                    nombre_usuario = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    password_hash = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    fecha_inicio = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    fecha_fin = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "A")
+                    id_usuario = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_persona = table.Column<int>(type: "integer", nullable: false),
+                    id_rol = table.Column<int>(type: "integer", nullable: false),
+                    nombre_usuario = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    password_hash = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    fecha_inicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    fecha_fin = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A")
                 },
                 constraints: table =>
                 {
@@ -148,13 +149,13 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Ambiente",
                 columns: table => new
                 {
-                    id_ambiente = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    codigo = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    nombre = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    ubicacion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    id_tipo = table.Column<int>(type: "int", nullable: false),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "A")
+                    id_ambiente = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    codigo = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    nombre = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    ubicacion = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    id_tipo = table.Column<int>(type: "integer", nullable: false),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A")
                 },
                 constraints: table =>
                 {
@@ -171,15 +172,15 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Auditoria",
                 columns: table => new
                 {
-                    id_auditoria = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    tabla_afectada = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    operacion = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    id_registro = table.Column<int>(type: "int", nullable: true),
-                    id_usuario = table.Column<int>(type: "int", nullable: true),
-                    fecha_hora = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    datos_anteriores = table.Column<string>(type: "NVARCHAR(MAX)", nullable: true),
-                    datos_nuevos = table.Column<string>(type: "NVARCHAR(MAX)", nullable: true)
+                    id_auditoria = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tabla_afectada = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    operacion = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    id_registro = table.Column<int>(type: "integer", nullable: true),
+                    id_usuario = table.Column<int>(type: "integer", nullable: true),
+                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    datos_anteriores = table.Column<string>(type: "text", nullable: true),
+                    datos_nuevos = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -196,14 +197,14 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Llave",
                 columns: table => new
                 {
-                    id_llave = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    codigo = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    num_copias = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    id_ambiente = table.Column<int>(type: "int", nullable: false),
-                    es_maestra = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "D"),
-                    observaciones = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                    id_llave = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    codigo = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    num_copias = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    id_ambiente = table.Column<int>(type: "integer", nullable: false),
+                    es_maestra = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "D"),
+                    observaciones = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -220,10 +221,10 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Persona_Autorizada",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_persona = table.Column<int>(type: "int", nullable: false),
-                    id_llave = table.Column<int>(type: "int", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_persona = table.Column<int>(type: "integer", nullable: false),
+                    id_llave = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,16 +247,16 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Prestamo",
                 columns: table => new
                 {
-                    id_prestamo = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_llave = table.Column<int>(type: "int", nullable: false),
-                    id_persona = table.Column<int>(type: "int", nullable: false),
-                    id_usuario = table.Column<int>(type: "int", nullable: false),
-                    fecha_hora_prestamo = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    fecha_hora_devolucion_esperada = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    fecha_hora_devolucion_real = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "A"),
-                    observaciones = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true)
+                    id_prestamo = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_llave = table.Column<int>(type: "integer", nullable: false),
+                    id_persona = table.Column<int>(type: "integer", nullable: false),
+                    id_usuario = table.Column<int>(type: "integer", nullable: false),
+                    fecha_hora_prestamo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    fecha_hora_devolucion_esperada = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    fecha_hora_devolucion_real = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A"),
+                    observaciones = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -284,14 +285,14 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "Reserva",
                 columns: table => new
                 {
-                    id_reserva = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_llave = table.Column<int>(type: "int", nullable: false),
-                    id_persona = table.Column<int>(type: "int", nullable: false),
-                    id_usuario = table.Column<int>(type: "int", nullable: false),
-                    fecha_inicio = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    fecha_fin = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    estado = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false, defaultValue: "P")
+                    id_reserva = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_llave = table.Column<int>(type: "integer", nullable: false),
+                    id_persona = table.Column<int>(type: "integer", nullable: false),
+                    id_usuario = table.Column<int>(type: "integer", nullable: false),
+                    fecha_inicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    fecha_fin = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "P")
                 },
                 constraints: table =>
                 {
@@ -320,14 +321,14 @@ namespace SistemaGestionLlaves.Data.Migrations
                 name: "AlertaNotificacion",
                 columns: table => new
                 {
-                    id_alerta = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    tipo_alerta = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    id_prestamo = table.Column<int>(type: "int", nullable: true),
-                    id_llave = table.Column<int>(type: "int", nullable: true),
-                    mensaje = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    fecha_generada = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    leida = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                    id_alerta = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tipo_alerta = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    id_prestamo = table.Column<int>(type: "integer", nullable: true),
+                    id_llave = table.Column<int>(type: "integer", nullable: true),
+                    mensaje = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    fecha_generada = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    leida = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {

@@ -81,12 +81,12 @@ public class CuentaController : Controller
         }
 
         // Crear los Claims (afirmaciones) que se guardarán en la cookie de sesión
-        var claims = new List<Claim>
+        var claims = new List<System.Security.Claims.Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-            new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-            new Claim(ClaimTypes.Role, usuario.Rol.Nombre),
-            new Claim("IdPersona", usuario.IdPersona.ToString())
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, usuario.NombreUsuario),
+            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, usuario.Rol.Nombre),
+            new System.Security.Claims.Claim("IdPersona", usuario.IdPersona.ToString())
         };
 
         var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");

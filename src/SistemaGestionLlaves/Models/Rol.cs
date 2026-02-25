@@ -10,7 +10,7 @@ public class Rol
     public int IdRol { get; set; }
 
     [Required, MaxLength(80)]
-    public string NombreRol { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
 
     [MaxLength(250)]
     public string? Descripcion { get; set; }

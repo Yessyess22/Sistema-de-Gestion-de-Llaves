@@ -42,7 +42,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Persona");
             e.HasKey(p => p.IdPersona);
-            e.Property(p => p.IdPersona).HasColumnName("id_persona").UseIdentityColumn();
+            e.Property(p => p.IdPersona).HasColumnName("id_persona").UseIdentityByDefaultColumn();
             e.Property(p => p.Nombres).HasColumnName("nombres").HasMaxLength(100).IsRequired();
             e.Property(p => p.Apellidos).HasColumnName("apellidos").HasMaxLength(100).IsRequired();
             e.Property(p => p.Ci).HasColumnName("ci").HasMaxLength(20).IsRequired();
@@ -60,11 +60,11 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Rol");
             e.HasKey(r => r.IdRol);
-            e.Property(r => r.IdRol).HasColumnName("id_rol").UseIdentityColumn();
-            e.Property(r => r.NombreRol).HasColumnName("nombre_rol").HasMaxLength(80).IsRequired();
+            e.Property(r => r.IdRol).HasColumnName("id_rol").UseIdentityByDefaultColumn();
+            e.Property(r => r.Nombre).HasColumnName("nombre_rol").HasMaxLength(80).IsRequired();
             e.Property(r => r.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
             e.Property(r => r.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
-            e.HasIndex(r => r.NombreRol).IsUnique().HasDatabaseName("UQ_Rol_Nombre");
+            e.HasIndex(r => r.Nombre).IsUnique().HasDatabaseName("UQ_Rol_Nombre");
         });
 
         // ── Permiso ──────────────────────────────────────────
@@ -72,7 +72,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Permisos");
             e.HasKey(p => p.IdPermiso);
-            e.Property(p => p.IdPermiso).HasColumnName("id_permiso").UseIdentityColumn();
+            e.Property(p => p.IdPermiso).HasColumnName("id_permiso").UseIdentityByDefaultColumn();
             e.Property(p => p.NombrePermiso).HasColumnName("nombre_permiso").HasMaxLength(100).IsRequired();
             e.Property(p => p.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
             e.HasIndex(p => p.NombrePermiso).IsUnique().HasDatabaseName("UQ_Permiso_Nombre");
@@ -102,7 +102,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Usuario");
             e.HasKey(u => u.IdUsuario);
-            e.Property(u => u.IdUsuario).HasColumnName("id_usuario").UseIdentityColumn();
+            e.Property(u => u.IdUsuario).HasColumnName("id_usuario").UseIdentityByDefaultColumn();
             e.Property(u => u.IdPersona).HasColumnName("id_persona");
             e.Property(u => u.IdRol).HasColumnName("id_rol");
             e.Property(u => u.NombreUsuario).HasColumnName("nombre_usuario").HasMaxLength(80).IsRequired();
@@ -128,7 +128,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("TipoAmbiente");
             e.HasKey(t => t.IdTipo);
-            e.Property(t => t.IdTipo).HasColumnName("id_tipo").UseIdentityColumn();
+            e.Property(t => t.IdTipo).HasColumnName("id_tipo").UseIdentityByDefaultColumn();
             e.Property(t => t.NombreTipo).HasColumnName("nombre_tipo").HasMaxLength(80).IsRequired();
             e.HasIndex(t => t.NombreTipo).IsUnique().HasDatabaseName("UQ_TipoAmbiente_Nombre");
         });
@@ -138,7 +138,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Ambiente");
             e.HasKey(a => a.IdAmbiente);
-            e.Property(a => a.IdAmbiente).HasColumnName("id_ambiente").UseIdentityColumn();
+            e.Property(a => a.IdAmbiente).HasColumnName("id_ambiente").UseIdentityByDefaultColumn();
             e.Property(a => a.Codigo).HasColumnName("codigo").HasMaxLength(20).IsRequired();
             e.Property(a => a.Nombre).HasColumnName("nombre").HasMaxLength(150).IsRequired();
             e.Property(a => a.Ubicacion).HasColumnName("ubicacion").HasMaxLength(200);
@@ -157,7 +157,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Llave");
             e.HasKey(l => l.IdLlave);
-            e.Property(l => l.IdLlave).HasColumnName("id_llave").UseIdentityColumn();
+            e.Property(l => l.IdLlave).HasColumnName("id_llave").UseIdentityByDefaultColumn();
             e.Property(l => l.Codigo).HasColumnName("codigo").HasMaxLength(30).IsRequired();
             e.Property(l => l.NumCopias).HasColumnName("num_copias").HasDefaultValue(1);
             e.Property(l => l.IdAmbiente).HasColumnName("id_ambiente");
@@ -177,7 +177,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Persona_Autorizada");
             e.HasKey(pa => pa.Id);
-            e.Property(pa => pa.Id).HasColumnName("id").UseIdentityColumn();
+            e.Property(pa => pa.Id).HasColumnName("id").UseIdentityByDefaultColumn();
             e.Property(pa => pa.IdPersona).HasColumnName("id_persona");
             e.Property(pa => pa.IdLlave).HasColumnName("id_llave");
             e.HasIndex(pa => new { pa.IdPersona, pa.IdLlave }).IsUnique()
@@ -199,7 +199,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Prestamo");
             e.HasKey(p => p.IdPrestamo);
-            e.Property(p => p.IdPrestamo).HasColumnName("id_prestamo").UseIdentityColumn();
+            e.Property(p => p.IdPrestamo).HasColumnName("id_prestamo").UseIdentityByDefaultColumn();
             e.Property(p => p.IdLlave).HasColumnName("id_llave");
             e.Property(p => p.IdPersona).HasColumnName("id_persona");
             e.Property(p => p.IdUsuario).HasColumnName("id_usuario");
@@ -232,7 +232,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Reserva");
             e.HasKey(r => r.IdReserva);
-            e.Property(r => r.IdReserva).HasColumnName("id_reserva").UseIdentityColumn();
+            e.Property(r => r.IdReserva).HasColumnName("id_reserva").UseIdentityByDefaultColumn();
             e.Property(r => r.IdLlave).HasColumnName("id_llave");
             e.Property(r => r.IdPersona).HasColumnName("id_persona");
             e.Property(r => r.IdUsuario).HasColumnName("id_usuario");
@@ -262,14 +262,14 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Auditoria");
             e.HasKey(a => a.IdAuditoria);
-            e.Property(a => a.IdAuditoria).HasColumnName("id_auditoria").UseIdentityColumn();
+            e.Property(a => a.IdAuditoria).HasColumnName("id_auditoria").UseIdentityByDefaultColumn();
             e.Property(a => a.TablaAfectada).HasColumnName("tabla_afectada").HasMaxLength(100).IsRequired();
             e.Property(a => a.Operacion).HasColumnName("operacion").HasMaxLength(20).IsRequired();
             e.Property(a => a.IdRegistro).HasColumnName("id_registro");
             e.Property(a => a.IdUsuario).HasColumnName("id_usuario");
             e.Property(a => a.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("GETUTCDATE()");
-            e.Property(a => a.DatosAnteriores).HasColumnName("datos_anteriores").HasColumnType("NVARCHAR(MAX)");
-            e.Property(a => a.DatosNuevos).HasColumnName("datos_nuevos").HasColumnType("NVARCHAR(MAX)");
+            e.Property(a => a.DatosAnteriores).HasColumnName("datos_anteriores").HasColumnType("text");
+            e.Property(a => a.DatosNuevos).HasColumnName("datos_nuevos").HasColumnType("text");
             e.HasIndex(a => a.FechaHora).HasDatabaseName("IX_Auditoria_Fecha");
             e.HasIndex(a => a.TablaAfectada).HasDatabaseName("IX_Auditoria_Tabla");
 
@@ -284,7 +284,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("IntentoAcceso");
             e.HasKey(i => i.IdIntento);
-            e.Property(i => i.IdIntento).HasColumnName("id_intento").UseIdentityColumn();
+            e.Property(i => i.IdIntento).HasColumnName("id_intento").UseIdentityByDefaultColumn();
             e.Property(i => i.NombreUsuario).HasColumnName("nombre_usuario").HasMaxLength(80).IsRequired();
             e.Property(i => i.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("GETUTCDATE()");
             e.Property(i => i.Ip).HasColumnName("ip").HasMaxLength(50);
@@ -297,7 +297,7 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("AlertaNotificacion");
             e.HasKey(a => a.IdAlerta);
-            e.Property(a => a.IdAlerta).HasColumnName("id_alerta").UseIdentityColumn();
+            e.Property(a => a.IdAlerta).HasColumnName("id_alerta").UseIdentityByDefaultColumn();
             e.Property(a => a.TipoAlerta).HasColumnName("tipo_alerta").HasMaxLength(50).IsRequired();
             e.Property(a => a.IdPrestamo).HasColumnName("id_prestamo");
             e.Property(a => a.IdLlave).HasColumnName("id_llave");

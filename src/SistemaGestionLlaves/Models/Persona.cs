@@ -15,6 +15,8 @@ public class Persona
     [Required, MaxLength(100)]
     public string Apellidos { get; set; } = string.Empty;
 
+    public string NombreCompleto => $"{Nombres} {Apellidos}";
+
     [Required, MaxLength(20)]
     public string Ci { get; set; } = string.Empty;
 
