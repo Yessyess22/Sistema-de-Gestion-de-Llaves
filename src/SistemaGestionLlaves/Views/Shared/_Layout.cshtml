@@ -32,7 +32,7 @@
             </a>
 
             <div class="menu-label">Catálogos</div>
-            <a href="#" class="menu-item">
+            <a asp-controller="LlavesView" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "LlavesView" ? "active" : "")">
                 <i class="bi bi-key"></i> Llaves
             </a>
             <a href="#" class="menu-item">
@@ -46,7 +46,7 @@
             <a href="#" class="menu-item">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reportes
             </a>
-            <a href="#" class="menu-item">
+            <a asp-controller="Usuarios" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" ? "active" : "")">
                 <i class="bi bi-shield-lock"></i> Usuarios y Roles
             </a>
         </div>
@@ -67,7 +67,7 @@
                 <p>Hola, Usuario. Aquí tienes el resumen de hoy.</p>
             </div>
             <div class="top-actions">
-                <button class="action-btn" title="Modo Oscuro">
+                <button id="dark-mode-toggle" class="action-btn" title="Modo Oscuro">
                     <i class="bi bi-moon"></i>
                 </button>
                 <button class="action-btn" title="Notificaciones">

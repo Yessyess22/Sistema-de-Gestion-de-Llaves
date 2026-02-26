@@ -1,28 +1,62 @@
+:root {
+    --bg-primary: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-sidebar: #ffffff;
+    --bg-sidebar-active: #e0f2fe;
+    --text-primary: #334155;
+    --text-muted: #64748b;
+    --text-label: #94a3b8;
+    --text-brand: #0f172a;
+    --text-brand-active: #0369a1;
+    --border-color: #e2e8f0;
+    --accent-blue: #0369a1;
+    --accent-blue-soft: #e0f2fe;
+    --bg-hover: #f8fafc;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-card: #1e293b;
+    --bg-sidebar: #1e293b;
+    --bg-sidebar-active: #0369a1;
+    --text-primary: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-label: #64748b;
+    --text-brand: #f8fafc;
+    --text-brand-active: #ffffff;
+    --border-color: #334155;
+    --accent-blue: #38bdf8;
+    --accent-blue-soft: rgba(56, 189, 248, 0.1);
+    --bg-hover: #334155;
+}
+
 body {
-    background-color: #f1f5f9; /* Soft light grayish blue */
+    background-color: var(--bg-primary);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #334155;
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* Sidebar Styling */
 .sidebar-wrapper {
     width: 260px;
     height: 100vh;
-    background-color: #ffffff;
-    border-right: 1px solid #e2e8f0;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
     position: fixed;
     top: 0;
     left: 0;
     display: flex;
     flex-direction: column;
     z-index: 1000;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .sidebar-brand {
     padding: 24px;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-brand);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -31,8 +65,8 @@ body {
 .sidebar-brand-icon {
     width: 32px;
     height: 32px;
-    background-color: #e0f2fe;
-    color: #0369a1;
+    background-color: var(--accent-blue-soft);
+    color: var(--accent-blue);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -49,7 +83,7 @@ body {
 .menu-label {
     font-size: 0.75rem;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: var(--text-label);
     margin: 24px 0 8px 12px;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -60,7 +94,7 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    color: #64748b;
+    color: var(--text-muted);
     text-decoration: none;
     border-radius: 12px;
     margin-bottom: 4px;
@@ -69,13 +103,13 @@ body {
 }
 
 .menu-item:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--bg-hover);
+    color: var(--text-brand);
 }
 
 .menu-item.active {
-    background-color: #e0f2fe;
-    color: #0369a1;
+    background-color: var(--bg-sidebar-active);
+    color: var(--text-brand-active);
 }
 
 .menu-item i {
@@ -84,7 +118,7 @@ body {
 
 .sidebar-footer {
     padding: 16px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Main Content Wrapper */
@@ -107,12 +141,12 @@ body {
 .page-title h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-brand);
     margin-bottom: 4px;
 }
 
 .page-title p {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0;
 }
@@ -127,19 +161,19 @@ body {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: var(--text-muted);
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     transition: all 0.2s;
 }
 
 .action-btn:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--bg-hover);
+    color: var(--text-brand);
 }
 
 .user-avatar {
@@ -157,30 +191,31 @@ body {
 
 /* Reusable Cards matching mockup */
 .ui-card {
-    background: #ffffff;
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 24px;
     border: none;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -2px rgba(0,0,0,0.02);
     height: 100%;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .card-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--text-brand);
     margin-bottom: 20px;
 }
 
 .big-number {
     font-size: 2.25rem;
     font-weight: 700;
-    color: #0369a1;
+    color: var(--accent-blue);
 }
 
 .number-subtitle {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
 }
 
 /* Specialty Cards */
@@ -200,7 +235,7 @@ body {
 
 /* Tables */
 .table-borderless th {
-    color: #94a3b8;
+    color: var(--text-label);
     font-size: 0.75rem;
     text-transform: uppercase;
     font-weight: 600;
@@ -211,9 +246,9 @@ body {
 .table-borderless td {
     padding: 16px 0;
     vertical-align: middle;
-    color: #334155;
+    color: var(--text-primary);
     font-weight: 500;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--bg-primary);
 }
 
 .status-badge {
@@ -228,7 +263,18 @@ body {
     color: #166534;
 }
 
+[data-theme="dark"] .status-success {
+    background-color: rgba(22, 101, 52, 0.2);
+    color: #4ade80;
+}
+
 .status-warning {
     background-color: #fef3c7;
     color: #92400e;
 }
+
+[data-theme="dark"] .status-warning {
+    background-color: rgba(146, 64, 14, 0.2);
+    color: #fbbf24;
+}
+

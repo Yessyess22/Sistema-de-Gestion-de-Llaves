@@ -19,7 +19,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                     id_intento = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     nombre_usuario = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
-                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     ip = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     exitoso = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
@@ -178,7 +178,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                     operacion = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     id_registro = table.Column<int>(type: "integer", nullable: true),
                     id_usuario = table.Column<int>(type: "integer", nullable: true),
-                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    fecha_hora = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     datos_anteriores = table.Column<string>(type: "text", nullable: true),
                     datos_nuevos = table.Column<string>(type: "text", nullable: true)
                 },
@@ -252,7 +252,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                     id_llave = table.Column<int>(type: "integer", nullable: false),
                     id_persona = table.Column<int>(type: "integer", nullable: false),
                     id_usuario = table.Column<int>(type: "integer", nullable: false),
-                    fecha_hora_prestamo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    fecha_hora_prestamo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     fecha_hora_devolucion_esperada = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     fecha_hora_devolucion_real = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     estado = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false, defaultValue: "A"),
@@ -327,7 +327,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                     id_prestamo = table.Column<int>(type: "integer", nullable: true),
                     id_llave = table.Column<int>(type: "integer", nullable: true),
                     mensaje = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    fecha_generada = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    fecha_generada = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     leida = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
