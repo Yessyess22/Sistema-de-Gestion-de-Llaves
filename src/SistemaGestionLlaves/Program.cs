@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionLlaves.Data;
 
@@ -6,7 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 // -------------------------------------------------------
 // Servicios
 // -------------------------------------------------------
-builder.Services.AddControllersWithViews();
+
+// Filtro global: toda acción requiere usuario autenticado.
+// Las acciones públicas deben decorarse explícitamente con [AllowAnonymous].
+var requireAuthenticated = new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .Build();
+
+builder.Services.AddControllersWithViews(options =>
+    options.Filters.Add(new AuthorizeFilter(requireAuthenticated)));
 
 // Entity Framework + SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

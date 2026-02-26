@@ -203,7 +203,7 @@ public class ApplicationDbContext : DbContext
             e.Property(p => p.IdLlave).HasColumnName("id_llave");
             e.Property(p => p.IdPersona).HasColumnName("id_persona");
             e.Property(p => p.IdUsuario).HasColumnName("id_usuario");
-            e.Property(p => p.FechaHoraPrestamo).HasColumnName("fecha_hora_prestamo").HasDefaultValueSql("GETUTCDATE()");
+            e.Property(p => p.FechaHoraPrestamo).HasColumnName("fecha_hora_prestamo").HasDefaultValueSql("NOW()");
             e.Property(p => p.FechaHoraDevolucionEsperada).HasColumnName("fecha_hora_devolucion_esperada");
             e.Property(p => p.FechaHoraDevolucionReal).HasColumnName("fecha_hora_devolucion_real");
             e.Property(p => p.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
@@ -267,7 +267,7 @@ public class ApplicationDbContext : DbContext
             e.Property(a => a.Operacion).HasColumnName("operacion").HasMaxLength(20).IsRequired();
             e.Property(a => a.IdRegistro).HasColumnName("id_registro");
             e.Property(a => a.IdUsuario).HasColumnName("id_usuario");
-            e.Property(a => a.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("GETUTCDATE()");
+            e.Property(a => a.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("NOW()");
             e.Property(a => a.DatosAnteriores).HasColumnName("datos_anteriores").HasColumnType("text");
             e.Property(a => a.DatosNuevos).HasColumnName("datos_nuevos").HasColumnType("text");
             e.HasIndex(a => a.FechaHora).HasDatabaseName("IX_Auditoria_Fecha");
@@ -286,7 +286,7 @@ public class ApplicationDbContext : DbContext
             e.HasKey(i => i.IdIntento);
             e.Property(i => i.IdIntento).HasColumnName("id_intento").UseIdentityByDefaultColumn();
             e.Property(i => i.NombreUsuario).HasColumnName("nombre_usuario").HasMaxLength(80).IsRequired();
-            e.Property(i => i.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("GETUTCDATE()");
+            e.Property(i => i.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("NOW()");
             e.Property(i => i.Ip).HasColumnName("ip").HasMaxLength(50);
             e.Property(i => i.Exitoso).HasColumnName("exitoso").HasDefaultValue(false);
             e.HasIndex(i => i.FechaHora).HasDatabaseName("IX_IntentoAcceso_Fecha");
@@ -302,7 +302,7 @@ public class ApplicationDbContext : DbContext
             e.Property(a => a.IdPrestamo).HasColumnName("id_prestamo");
             e.Property(a => a.IdLlave).HasColumnName("id_llave");
             e.Property(a => a.Mensaje).HasColumnName("mensaje").HasMaxLength(500).IsRequired();
-            e.Property(a => a.FechaGenerada).HasColumnName("fecha_generada").HasDefaultValueSql("GETUTCDATE()");
+            e.Property(a => a.FechaGenerada).HasColumnName("fecha_generada").HasDefaultValueSql("NOW()");
             e.Property(a => a.Leida).HasColumnName("leida").HasDefaultValue(false);
             e.HasIndex(a => a.Leida).HasDatabaseName("IX_Alerta_Leida");
 
