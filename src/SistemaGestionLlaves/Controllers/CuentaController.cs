@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionLlaves.Data;
-using SistemaGestionLlaves.Models;
 using System.Security.Claims;
-using BCrypt.Net;
 
 namespace SistemaGestionLlaves.Controllers;
 
 /// <summary>
-/// Controlador responsable de la autenticación de usuarios (Login, Logout y Acceso Denegado).
+/// Controlador responsable de la autenticación de usuarios.
+/// Marcado con [AllowAnonymous] para que el filtro global no bloquee el acceso al Login.
 /// </summary>
+[AllowAnonymous]
 public class CuentaController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -21,101 +21,86 @@ public class CuentaController : Controller
         _context = context;
     }
 
-    /// <summary>
-    /// Muestra la vista de inicio de sesión. Si el usuario ya está autenticado, redirige al índice de Usuarios.
-    /// </summary>
-    /// <returns>Vista de Login o Redirección</returns>
+    // -------------------------------------------------------
+    // GET /Cuenta/Login
+    // -------------------------------------------------------
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string? returnUrl = null)
     {
-        if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            return RedirectToAction("Index", "Usuarios");
-        }
+        // Si ya está autenticado, redirigir directamente al Dashboard
+        if (User.Identity is { IsAuthenticated: true })
+            return RedirectToLocal(returnUrl);
+
+        ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 
-    /// <summary>
-    /// Procesa el formulario de inicio de sesión, validando credenciales y creando la cookie de sesión.
-    /// </summary>
-    /// <param name="username">Nombre de usuario</param>
-    /// <param name="password">Contraseña en texto plano</param>
-    /// <returns>Vista de Login o redirección al Index de Usuarios en caso de éxito</returns>
+    // -------------------------------------------------------
+    // POST /Cuenta/Login
+    // -------------------------------------------------------
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(string username, string password)
+    public async Task<IActionResult> Login(string username, string password, string? returnUrl = null)
     {
-        // Validación básica de campos vacíos
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        ViewData["ReturnUrl"] = returnUrl;
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
             ViewBag.Error = "Debe ingresar usuario y contraseña.";
             return View();
         }
 
-        // Buscar el usuario en la base de datos incluyendo sus relaciones principales
+        // Buscar usuario activo con su Rol y Persona
         var usuario = await _context.Usuarios
             .Include(u => u.Rol)
             .Include(u => u.Persona)
-            .FirstOrDefaultAsync(u => u.NombreUsuario == username);
+            .FirstOrDefaultAsync(u => u.NombreUsuario == username && u.Estado == "A");
 
-        if (usuario == null)
+        // Mensaje genérico para no revelar si el usuario existe
+        if (usuario == null || !BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash))
         {
-            ViewBag.Error = "Usuario no encontrado.";
+            ViewBag.Error = "Usuario o contraseña incorrectos.";
             return View();
         }
 
-        // Verificar el estado del usuario (sólo usuarios 'Activos' pueden ingresar)
-        if (usuario.Estado != "A")
+        // Crear claims para la sesión
+        var claims = new List<Claim>
         {
-            ViewBag.Error = "El usuario no está activo.";
-            return View();
-        }
-
-        // Verificar el hash de la contraseña usando BCrypt
-        bool match = BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash);
-
-        if (!match)
-        {
-            ViewBag.Error = "Contraseña incorrecta.";
-            return View();
-        }
-
-        // Crear los Claims (afirmaciones) que se guardarán en la cookie de sesión
-        var claims = new List<System.Security.Claims.Claim>
-        {
-            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, usuario.NombreUsuario),
-            new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, usuario.Rol.Nombre),
-            new System.Security.Claims.Claim("IdPersona", usuario.IdPersona.ToString())
+            new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
+            new(ClaimTypes.Name,           usuario.NombreUsuario),
+            new(ClaimTypes.Role,           usuario.Rol.Nombre),
+            new("NombreCompleto",          $"{usuario.Persona.Nombres} {usuario.Persona.Apellidos}"),
+            new("IdPersona",               usuario.IdPersona.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
+        var identidad = new ClaimsIdentity(claims, "CookieAuth");
+        await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(identidad));
 
-        // Registrar el inicio de sesión del usuario
-        await HttpContext.SignInAsync(
-            "CookieAuth",
-            new ClaimsPrincipal(claimsIdentity));
-
-        // Redirigir a la lista de usuarios tras iniciar sesión exitosamente
-        return RedirectToAction("Index", "Usuarios");
+        return RedirectToLocal(returnUrl);
     }
 
-    /// <summary>
-    /// Cierra la sesión activa del usuario actual.
-    /// </summary>
-    /// <returns>Redirección al Login</returns>
+    // -------------------------------------------------------
+    // GET /Cuenta/Logout
+    // -------------------------------------------------------
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync("CookieAuth");
         return RedirectToAction("Login", "Cuenta");
     }
 
-    /// <summary>
-    /// Muestra una vista informando al usuario que no tiene permisos para acceder a un recurso.
-    /// </summary>
-    /// <returns>Vista de acceso denegado</returns>
-    public IActionResult Denegado()
+    // -------------------------------------------------------
+    // GET /Cuenta/Denegado
+    // -------------------------------------------------------
+    public IActionResult Denegado() => View();
+
+    // -------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------
+    private IActionResult RedirectToLocal(string? returnUrl)
     {
-        return View();
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
+        return RedirectToAction("Index", "Home");
     }
 }

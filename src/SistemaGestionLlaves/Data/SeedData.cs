@@ -69,32 +69,50 @@ public static class SeedData
         }
 
         // ── Usuario Administrador por defecto ────────────────
-        if (!context.Personas.Any())
+        // Se verifica por nombre de usuario, no por "si hay alguna persona",
+        // para que el seeder sea idempotente en cualquier estado de la BD.
+        const string adminUsername = "admin";
+        const string adminPassword = "password";
+
+        var usuarioAdminExistente = context.Usuarios
+            .FirstOrDefault(u => u.NombreUsuario == adminUsername);
+
+        if (usuarioAdminExistente == null)
         {
-            var personaAdmin = new Persona
+            // Buscar o crear la Persona del admin
+            var personaAdmin = context.Personas.FirstOrDefault(p => p.Ci == "00000000")
+                ?? new Persona
+                {
+                    Nombres  = "Administrador",
+                    Apellidos = "Sistema",
+                    Ci       = "00000000",
+                    Correo   = "admin@upds.edu.bo",
+                    Estado   = "A"
+                };
+
+            if (personaAdmin.IdPersona == 0)
             {
-                Nombres = "Administrador",
-                Apellidos = "Sistema",
-                Ci = "00000000",
-                Correo = "admin@upds.edu.bo",
-                Estado = "A"
-            };
-            context.Personas.Add(personaAdmin);
-            await context.SaveChangesAsync();
+                context.Personas.Add(personaAdmin);
+                await context.SaveChangesAsync();
+            }
 
             var rolAdmin = context.Roles.First(r => r.Nombre == "Administrador");
 
-            var usuarioAdmin = new Usuario
+            context.Usuarios.Add(new Usuario
             {
-                IdPersona = personaAdmin.IdPersona,
-                IdRol = rolAdmin.IdRol,
-                NombreUsuario = "admin",
-                // Contraseña: Admin@1234 (hasheada con BCrypt)
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234"),
-                FechaInicio = DateTime.UtcNow,
-                Estado = "A"
-            };
-            context.Usuarios.Add(usuarioAdmin);
+                IdPersona    = personaAdmin.IdPersona,
+                IdRol        = rolAdmin.IdRol,
+                NombreUsuario = adminUsername,
+                PasswordHash  = BCrypt.Net.BCrypt.HashPassword(adminPassword),
+                FechaInicio   = DateTime.UtcNow,
+                Estado        = "A"
+            });
+            await context.SaveChangesAsync();
+        }
+        else if (!BCrypt.Net.BCrypt.Verify(adminPassword, usuarioAdminExistente.PasswordHash))
+        {
+            // El admin existe pero con un hash distinto → actualizar al hash correcto
+            usuarioAdminExistente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword);
             await context.SaveChangesAsync();
         }
 

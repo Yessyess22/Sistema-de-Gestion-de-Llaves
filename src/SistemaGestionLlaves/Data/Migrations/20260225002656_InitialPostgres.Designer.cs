@@ -38,7 +38,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_generada")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int?>("IdLlave")
                         .HasColumnType("integer")
@@ -148,7 +148,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_hora")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int?>("IdRegistro")
                         .HasColumnType("integer")
@@ -202,7 +202,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_hora")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<string>("Ip")
                         .HasMaxLength(50)
@@ -430,7 +430,7 @@ namespace SistemaGestionLlaves.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_hora_prestamo")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<int>("IdLlave")
                         .HasColumnType("integer")
