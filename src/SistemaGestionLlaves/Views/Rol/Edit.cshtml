@@ -1,0 +1,25 @@
+@model SistemaGestionLlaves.Models.Rol
+@{
+    ViewData["Title"] = "Editar Rol";
+}
+<h2>Editar Rol</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="IdRol" />
+    <div>
+        <label>Nombre</label>
+        <input asp-for="NombreRol" />
+    </div>
+    <div>
+        <label>Descripción</label>
+        <input asp-for="Descripcion" />
+    </div>
+    <div>
+        <label>Estado</label>
+        <select asp-for="Estado">
+            <option value="A" selected="@(Model.Estado == "A")">Activo</option>
+            <option value="I" selected="@(Model.Estado == "I")">Inactivo</option>
+        </select>
+    </div>
+    <button type="submit">Actualizar</button>
+</form>
+<p><a asp-action="Index">Volver a la lista</a></p>

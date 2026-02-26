@@ -1,0 +1,11 @@
+@model SistemaGestionLlaves.Models.Rol
+@{
+    ViewData["Title"] = "Eliminar Rol";
+}
+<h2>Eliminar Rol</h2>
+<p>¿Confirma eliminar el rol <strong>@Model.NombreRol</strong>?</p>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="IdRol" />
+    <button type="submit">Eliminar</button>
+    <a asp-action="Index">Cancelar</a>
+</form>

@@ -1,0 +1,15 @@
+@model SistemaGestionLlaves.Models.Rol
+@{
+    ViewData["Title"] = "Detalles Rol";
+}
+<h2>Detalles Rol</h2>
+<ul>
+    <li>ID: @Model.IdRol</li>
+    <li>Nombre: @Model.NombreRol</li>
+    <li>Descripción: @Model.Descripcion</li>
+    <li>Estado: @Model.Estado</li>
+</ul>
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.IdRol">Editar</a> |
+    <a asp-action="Index">Volver a la lista</a>
+</p>

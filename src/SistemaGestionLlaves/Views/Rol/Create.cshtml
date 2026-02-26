@@ -1,0 +1,24 @@
+@model SistemaGestionLlaves.Models.Rol
+@{
+    ViewData["Title"] = "Crear Rol";
+}
+<h2>Crear Rol</h2>
+<form asp-action="Create" method="post">
+    <div>
+        <label>Nombre</label>
+        <input asp-for="NombreRol" />
+    </div>
+    <div>
+        <label>Descripción</label>
+        <input asp-for="Descripcion" />
+    </div>
+    <div>
+        <label>Estado</label>
+        <select asp-for="Estado">
+            <option value="A">Activo</option>
+            <option value="I">Inactivo</option>
+        </select>
+    </div>
+    <button type="submit">Guardar</button>
+</form>
+<p><a asp-action="Index">Volver a la lista</a></p>

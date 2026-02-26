@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaGestionLlaves.Models;
 
@@ -10,7 +11,7 @@ public class Rol
     public int IdRol { get; set; }
 
     [Required, MaxLength(80)]
-    public string Nombre { get; set; } = string.Empty;
+    public string NombreRol { get; set; } = string.Empty;
 
     [MaxLength(250)]
     public string? Descripcion { get; set; }
@@ -22,4 +23,8 @@ public class Rol
     // Navegación
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
     public ICollection<RolPermiso> RolPermisos { get; set; } = new List<RolPermiso>();
+
+    // Propiedad de compatibilidad para código que espera `Nombre`
+    [NotMapped]
+    public string Nombre => NombreRol;
 }
