@@ -12,8 +12,7 @@ COPY src/ ./src/
 # Publicar en modo Release
 RUN dotnet publish ./src/SistemaGestionLlaves/SistemaGestionLlaves.csproj \
     -c Release \
-    -o /app/publish \
-    --no-restore
+    -o /app/publish
 
 # Etapa 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime

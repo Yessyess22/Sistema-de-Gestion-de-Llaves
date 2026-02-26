@@ -28,7 +28,7 @@ public class Llave
     public string? Observaciones { get; set; }
 
     // Navegación
-    public Ambiente Ambiente { get; set; } = null!;
+    public Ambiente? Ambiente { get; set; }
     public ICollection<PersonaAutorizada> PersonasAutorizadas { get; set; } = new List<PersonaAutorizada>();
     public ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
     public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();

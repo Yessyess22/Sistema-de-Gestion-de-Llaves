@@ -1,0 +1,153 @@
+@model SistemaGestionLlaves.Models.Llave
+@{
+    ViewData["Title"] = "Detalle de Llave";
+    var (bg, fg, icono, label) = Model.Estado switch
+    {
+        "D" => ("#dcfce7", "#166534", "check-circle", "Disponible"),
+        "P" => ("#fef3c7", "#92400e", "arrow-left-right", "Prestada"),
+        "R" => ("#dbeafe", "#1e40af", "calendar-check", "Reservada"),
+        _   => ("#f1f5f9", "#64748b", "x-circle", "Inactiva")
+    };
+}
+
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-key me-2" style="color:#0369a1;"></i>Detalle de Llave
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Información completa de la llave</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (Model.Estado != "P")
+        {
+            <a asp-action="Edit" asp-route-id="@Model.IdLlave"
+               class="btn px-4 py-2"
+               style="background:#e0f2fe; color:#0369a1; border-radius:12px; font-weight:600; border:none;">
+                <i class="bi bi-pencil me-1"></i>Editar
+            </a>
+        }
+        <a asp-action="Index" class="btn px-4 py-2"
+           style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Información Principal -->
+    <div class="col-lg-5">
+        <div class="ui-card h-100">
+            <!-- Ícono + Código -->
+            <div class="text-center mb-4 pb-3" style="border-bottom:1px solid #f1f5f9;">
+                <div style="width:72px; height:72px; background:#e0f2fe; border-radius:20px;
+                            display:flex; align-items:center; justify-content:center;
+                            margin:0 auto 12px; color:#0369a1; font-size:2rem;">
+                    <i class="bi bi-key@(Model.EsMaestra ? "-fill" : "")"></i>
+                </div>
+                <h3 class="fw-bold mb-1" style="color:#0f172a; font-size:1.5rem;">@Model.Codigo</h3>
+                @if (Model.EsMaestra)
+                {
+                    <span class="status-badge" style="background:#ede9fe; color:#6d28d9;">
+                        <i class="bi bi-star-fill me-1"></i>Llave Maestra
+                    </span>
+                }
+                <br class="@(Model.EsMaestra ? "" : "d-none")" />
+                <span class="status-badge mt-2" style="background:@bg; color:@fg; display:inline-block;">
+                    <i class="bi bi-@icono me-1"></i>@label
+                </span>
+            </div>
+
+            <!-- Datos -->
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between align-items-center py-2"
+                     style="border-bottom:1px solid #f1f5f9;">
+                    <span style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                        ID Llave
+                    </span>
+                    <span style="color:#334155; font-weight:600;">#@Model.IdLlave</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2"
+                     style="border-bottom:1px solid #f1f5f9;">
+                    <span style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                        Número de Copias
+                    </span>
+                    <span style="color:#334155; font-weight:600;">@Model.NumCopias</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2"
+                     style="border-bottom:1px solid #f1f5f9;">
+                    <span style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                        Ambiente
+                    </span>
+                    <span style="color:#334155; font-weight:600;">@Model.Ambiente?.Nombre</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2"
+                     style="border-bottom:1px solid #f1f5f9;">
+                    <span style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">
+                        Tipo de Ambiente
+                    </span>
+                    <span style="color:#334155; font-weight:600;">@Model.Ambiente?.TipoAmbiente?.NombreTipo</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Observaciones))
+                {
+                    <div class="py-2">
+                        <span style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:6px;">
+                            Observaciones
+                        </span>
+                        <p style="color:#334155; font-size:0.9rem; margin:0; background:#f8fafc; padding:10px 14px; border-radius:10px;">
+                            @Model.Observaciones
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Personas Autorizadas -->
+    <div class="col-lg-7">
+        <div class="ui-card">
+            <h3 class="card-title">
+                <i class="bi bi-people me-2" style="color:#0369a1;"></i>Personas Autorizadas
+                <span class="ms-2" style="font-size:0.8rem; color:#94a3b8; font-weight:400;">(@Model.PersonasAutorizadas.Count)</span>
+            </h3>
+
+            @if (!Model.PersonasAutorizadas.Any())
+            {
+                <div class="text-center py-4" style="color:#94a3b8;">
+                    <i class="bi bi-person-x" style="font-size:2rem; display:block; margin-bottom:8px;"></i>
+                    <p class="mb-0 small">No hay personas autorizadas para esta llave.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table table-borderless mb-0">
+                    <thead>
+                        <tr>
+                            <th>Persona</th>
+                            <th>CI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pa in Model.PersonasAutorizadas)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:32px; height:32px; background:#e0f2fe; border-radius:8px;
+                                                    display:flex; align-items:center; justify-content:center; color:#0369a1;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <span style="font-weight:600; color:#0f172a;">
+                                            @pa.Persona?.Nombres @pa.Persona?.Apellidos
+                                        </span>
+                                    </div>
+                                </td>
+                                <td style="color:#64748b;">@pa.Persona?.Ci</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
