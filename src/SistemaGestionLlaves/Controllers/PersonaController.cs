@@ -1,0 +1,149 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SistemaGestionLlaves.Data;
+using SistemaGestionLlaves.Models;
+
+namespace SistemaGestionLlaves.Controllers
+{
+    public class PersonaController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+
+        public PersonaController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // ==========================
+        // LISTAR
+        // ==========================
+        public async Task<IActionResult> Index(string buscar)
+        {
+            var personas = from p in _context.Personas
+                           select p;
+
+            if (!string.IsNullOrEmpty(buscar))
+            {
+                personas = personas.Where(p =>
+                    p.Nombres.Contains(buscar) ||
+                    p.Apellidos.Contains(buscar) ||
+                    p.Ci.Contains(buscar));
+            }
+
+            return View(await personas.ToListAsync());
+        }
+
+        // ==========================
+        // DETALLE
+        // ==========================
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var persona = await _context.Personas
+                .FirstOrDefaultAsync(m => m.IdPersona == id);
+
+            if (persona == null) return NotFound();
+
+            return View(persona);
+        }
+
+        // ==========================
+        // CREAR (GET)
+        // ==========================
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // ==========================
+        // CREAR (POST)
+        // ==========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Persona persona)
+        {
+            if (ModelState.IsValid)
+            {
+                persona.Estado = "A";
+                _context.Add(persona);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(persona);
+        }
+
+        // ==========================
+        // EDITAR (GET)
+        // ==========================
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var persona = await _context.Personas.FindAsync(id);
+            if (persona == null) return NotFound();
+
+            return View(persona);
+        }
+
+        // ==========================
+        // EDITAR (POST)
+        // ==========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Persona persona)
+        {
+            if (id != persona.IdPersona) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(persona);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Personas.Any(e => e.IdPersona == persona.IdPersona))
+                        return NotFound();
+                    else
+                        throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(persona);
+        }
+
+        // ==========================
+        // ELIMINAR (GET)
+        // ==========================
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var persona = await _context.Personas
+                .FirstOrDefaultAsync(m => m.IdPersona == id);
+
+            if (persona == null) return NotFound();
+
+            return View(persona);
+        }
+
+        // ==========================
+        // ELIMINAR (POST)
+        // ==========================
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var persona = await _context.Personas.FindAsync(id);
+            if (persona != null)
+            {
+                _context.Personas.Remove(persona);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}

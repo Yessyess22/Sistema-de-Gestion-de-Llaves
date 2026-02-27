@@ -1,0 +1,57 @@
+@model SistemaGestionLlaves.Models.Persona
+
+@{
+    ViewData["Title"] = "Eliminar Persona";
+}
+
+<h2 class="mb-4 text-danger">Eliminar Persona</h2>
+
+<div class="card shadow border-danger">
+    <div class="card-body">
+
+        <h5 class="text-danger">
+            ¿Estás segura de que deseas eliminar esta persona?
+        </h5>
+
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-3">Nombre Completo</dt>
+            <dd class="col-sm-9">@Model.NombreCompleto</dd>
+
+            <dt class="col-sm-3">CI</dt>
+            <dd class="col-sm-9">@Model.Ci</dd>
+
+            <dt class="col-sm-3">Correo</dt>
+            <dd class="col-sm-9">@Model.Correo</dd>
+
+            <dt class="col-sm-3">Celular</dt>
+            <dd class="col-sm-9">@Model.Celular</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">
+                @if (Model.Estado == "A")
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactivo</span>
+                }
+            </dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="IdPersona" />
+
+            <button type="submit" class="btn btn-danger">
+                Sí, Eliminar
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </form>
+
+    </div>
+</div>

@@ -1,0 +1,76 @@
+@model SistemaGestionLlaves.Models.Persona
+
+@{
+    ViewData["Title"] = "Detalle de Persona";
+}
+
+<h2 class="mb-4">Detalle de Persona</h2>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <dl class="row">
+            <dt class="col-sm-3">Nombres</dt>
+            <dd class="col-sm-9">@Model.Nombres</dd>
+
+            <dt class="col-sm-3">Apellidos</dt>
+            <dd class="col-sm-9">@Model.Apellidos</dd>
+
+            <dt class="col-sm-3">CI</dt>
+            <dd class="col-sm-9">@Model.Ci</dd>
+
+            <dt class="col-sm-3">Fecha de Nacimiento</dt>
+            <dd class="col-sm-9">
+                @(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrado")
+            </dd>
+
+            <dt class="col-sm-3">Género</dt>
+            <dd class="col-sm-9">
+                @if (Model.Genero == "M")
+                {
+                    <span>Masculino</span>
+                }
+                else if (Model.Genero == "F")
+                {
+                    <span>Femenino</span>
+                }
+                else if (Model.Genero == "O")
+                {
+                    <span>Otro</span>
+                }
+                else
+                {
+                    <span>No especificado</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Correo</dt>
+            <dd class="col-sm-9">@Model.Correo</dd>
+
+            <dt class="col-sm-3">Celular</dt>
+            <dd class="col-sm-9">@Model.Celular</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">
+                @if (Model.Estado == "A")
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactivo</span>
+                }
+            </dd>
+        </dl>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.IdPersona" class="btn btn-warning">
+                Editar
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver
+            </a>
+        </div>
+
+    </div>
+</div>
