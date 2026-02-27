@@ -1,0 +1,106 @@
+@model IEnumerable<SistemaGestionLlaves.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="ui-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="card-title mb-1">Listado de Usuarios</h2>
+            <p class="text-muted small mb-0">Administra las cuentas de acceso y roles del sistema.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm">
+            <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-borderless align-middle">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Persona</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(item.NombreUsuario)&background=e0f2fe&color=0369a1&bold=true" 
+                                     class="rounded-circle me-3" width="38" height="38" alt="@item.NombreUsuario" />
+                                <span class="fw-bold">@item.NombreUsuario</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span>@item.Persona.Nombres @item.Persona.Apellidos</span>
+                                <span class="text-muted small">C.I. @item.Persona.Ci</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border fw-medium px-3 py-2 rounded-pill">
+                                <i class="bi bi-shield-check me-1 text-primary"></i> @item.Rol.NombreRol
+                            </span>
+                        </td>
+                        <td>
+                            @if (item.Estado == "A")
+                            {
+                                <span class="status-badge status-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-warning">
+                                    <i class="bi bi-exclamation-circle-fill me-1"></i> Inactivo
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+                                <a asp-action="Edit" asp-route-id="@item.IdUsuario" 
+                                   class="btn btn-sm btn-white border-end" title="Editar">
+                                    <i class="bi bi-pencil-square text-primary"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.IdUsuario" 
+                                   class="btn btn-sm btn-white border-end" title="Ver Detalles">
+                                    <i class="bi bi-eye text-info"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.IdUsuario" 
+                                   class="btn btn-sm btn-white" title="Eliminar/Desactivar">
+                                    <i class="bi bi-trash3 text-danger"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .btn-white {
+            background-color: #fff;
+            border: none;
+        }
+        .btn-white:hover {
+            background-color: #f8fafc;
+        }
+        .table thead th {
+            background-color: var(--bg-hover);
+            color: var(--text-label);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: 12px 16px;
+        }
+    </style>
+}

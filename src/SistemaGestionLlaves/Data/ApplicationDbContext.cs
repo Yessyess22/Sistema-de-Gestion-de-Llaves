@@ -60,7 +60,11 @@ public class ApplicationDbContext : DbContext
         {
             e.ToTable("Rol");
             e.HasKey(r => r.IdRol);
+<<<<<<< Updated upstream
             e.Property(r => r.IdRol).HasColumnName("id_rol").UseIdentityColumn();
+=======
+            e.Property(r => r.IdRol).HasColumnName("id_rol").UseIdentityByDefaultColumn();
+>>>>>>> Stashed changes
             e.Property(r => r.NombreRol).HasColumnName("nombre_rol").HasMaxLength(80).IsRequired();
             e.Property(r => r.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
             e.Property(r => r.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
