@@ -1,0 +1,17 @@
+@model SistemaGestionLlaves.Models.Ambiente
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h4>Detalles del Ambiente</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Nombre:</strong> @Model.Nombre</p>
+            <p><strong>Tipo:</strong> @Model.TipoAmbiente?.NombreTipo</p>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Edit" asp-route-id="@Model.IdAmbiente" class="btn btn-warning">Editar</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>

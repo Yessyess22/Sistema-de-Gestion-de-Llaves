@@ -1,0 +1,17 @@
+@model SistemaGestionLlaves.Models.Ambiente
+
+<h2>Eliminar Ambiente</h2>
+
+<h4>¿Estás segura que deseas eliminar este ambiente?</h4>
+
+<div>
+    <strong>Código:</strong> @Model.Codigo <br />
+    <strong>Nombre:</strong> @Model.Nombre <br />
+    <strong>Tipo:</strong> @Model.TipoAmbiente.NombreTipo <br />
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="IdAmbiente" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
