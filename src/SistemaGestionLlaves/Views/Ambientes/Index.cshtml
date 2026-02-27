@@ -1,0 +1,34 @@
+@model IEnumerable<SistemaGestionLlaves.Models.Ambiente>
+
+<h2>Ambientes</h2>
+
+<a asp-action="Create" class="btn btn-primary">Nuevo Ambiente</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>Tipo de Ambiente</th> 
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Codigo</td>
+                <td>@item.Nombre</td>
+                <td>@item.Ubicacion</td>
+                <td>@item.TipoAmbiente.NombreTipo</td>
+                <td>@item.Estado</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.IdAmbiente">Editar</a> |
+                    <a asp-action="Delete" asp-route-id="@item.IdAmbiente">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

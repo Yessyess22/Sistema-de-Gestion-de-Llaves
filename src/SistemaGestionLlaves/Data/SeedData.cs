@@ -26,29 +26,30 @@ public static class SeedData
 
         // ── Roles ────────────────────────────────────────────
         if (!context.Roles.Any())
+{
+    context.Roles.AddRange(
+        new Rol
         {
-            context.Roles.AddRange(
-                new Rol
-                {
-                    Nombre = "Administrador",
-                    Descripcion = "Acceso total al sistema. Gestiona usuarios, llaves y configuración.",
-                    Estado = "A"
-                },
-                new Rol
-                {
-                    Nombre = "Operador",
-                    Descripcion = "Registra préstamos, devoluciones y reservas de llaves.",
-                    Estado = "A"
-                },
-                new Rol
-                {
-                    Nombre = "Consultor",
-                    Descripcion = "Solo puede consultar el estado de las llaves y reportes.",
-                    Estado = "A"
-                }
-            );
-            await context.SaveChangesAsync();
+            NombreRol = "Administrador",
+            Descripcion = "Acceso total al sistema. Gestiona usuarios, llaves y configuración.",
+            Estado = "A"
+        },
+        new Rol
+        {
+            NombreRol = "Operador",
+            Descripcion = "Registra préstamos, devoluciones y reservas de llaves.",
+            Estado = "A"
+        },
+        new Rol
+        {
+            NombreRol = "Consultor",
+            Descripcion = "Solo puede consultar el estado de las llaves y reportes.",
+            Estado = "A"
         }
+    );
+
+    await context.SaveChangesAsync();
+}
 
         // ── Permisos básicos ─────────────────────────────────
         if (!context.Permisos.Any())

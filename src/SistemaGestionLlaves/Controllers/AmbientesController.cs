@@ -1,209 +1,157 @@
-using Ambientes.Data.Models;
-using Ambientes.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using SistemaGestionLlaves.Data;
+using SistemaGestionLlaves.Models;
 
-namespace Ambientes.API.Controllers
+namespace SistemaGestionLlaves.Controllers
 {
-    
-    [ApiController]
-    [Route("api/[controller]")]
-    [Produces("application/json")]
-    public class AmbientesController : ControllerBase
+    public class AmbientesController : Controller
     {
-        private readonly IAmbienteService _service;
-        private readonly ILogger<AmbientesController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public AmbientesController(IAmbienteService service, ILogger<AmbientesController> logger)
+        public AmbientesController(ApplicationDbContext context)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _context = context;
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Ambiente>>> ObtenerTodos()
-        {
-            try
-            {
-                _logger.LogInformation("Obteniendo todos los ambientes");
-                var ambientes = await _service.ObtenerTodos();
-                return Ok(ambientes);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener ambientes");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { mensaje = "Error al obtener los ambientes", detalle = ex.Message });
-            }
-        }
+        // LISTAR
+        public async Task<IActionResult> Index()
+    {
+        var ambientes = await _context.Ambientes
+        .Include(a => a.TipoAmbiente)
+        .ToListAsync();
 
-       
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Ambiente>> ObtenerPorId(int id)
-        {
-            if (id <= 0)
-            {
-                _logger.LogWarning("Intento de acceso con ID inválido: {id}", id);
-                return BadRequest(new { mensaje = "El ID debe ser mayor a cero" });
-            }
+         return View(ambientes);
+   }
 
-            try
-            {
-                _logger.LogInformation("Obteniendo ambiente con ID: {id}", id);
-                var ambiente = await _service.ObtenerPorId(id);
-                return Ok(ambiente);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning("Ambiente no encontrado con ID: {id}", id);
-                return NotFound(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener ambiente con ID: {id}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { mensaje = "Error al obtener el ambiente", detalle = ex.Message });
-            }
-        }
+   public async Task<IActionResult> Details(int id)
+{
+    var ambiente = await _context.Ambientes
+        .Include(a => a.TipoAmbiente)
+        .FirstOrDefaultAsync(a => a.IdAmbiente == id);
 
-        
+    if (ambiente == null)
+        return NotFound();
+
+    return View(ambiente);
+}
+
+        // CREAR GET
+        public async Task<IActionResult> Create()
+{
+    ViewBag.Tipos = new SelectList(
+        await _context.TiposAmbiente.ToListAsync(),
+        "IdTipo",
+        "NombreTipo"   // 👈 CORREGIDO
+    );
+
+    return View();
+}
+
+
+        // CREAR POST
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Ambiente>> Crear(Ambiente ambiente)
-        {
-            if (ambiente == null)
-            {
-                _logger.LogWarning("Intento de crear ambiente con datos nulos");
-                return BadRequest(new { mensaje = "El ambiente no puede estar vacío" });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Intento de crear ambiente con datos inválidos: {@ambiente}", ambiente);
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                _logger.LogInformation("Creando nuevo ambiente con código: {codigo}", ambiente.Codigo);
-                var nuevoAmbiente = await _service.Crear(ambiente);
-                return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevoAmbiente.Id }, nuevoAmbiente);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Validación fallida al crear ambiente");
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Ya existe"))
-            {
-                _logger.LogWarning(ex, "Intento de crear ambiente duplicado");
-                return Conflict(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al crear ambiente");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { mensaje = "Error al crear el ambiente", detalle = ex.Message });
-            }
-        }
-
-       
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Ambiente>> Actualizar(int id, Ambiente ambiente)
-        {
-            if (id <= 0)
-            {
-                _logger.LogWarning("Intento de actualizar con ID inválido: {id}", id);
-                return BadRequest(new { mensaje = "El ID debe ser mayor a cero" });
-            }
-
-            if (ambiente == null)
-            {
-                _logger.LogWarning("Intento de actualizar ambiente con datos nulos");
-                return BadRequest(new { mensaje = "El ambiente no puede estar vacío" });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Intento de actualizar ambiente con datos inválidos");
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                _logger.LogInformation("Actualizando ambiente con ID: {id}", id);
-                var ambienteActualizado = await _service.Actualizar(id, ambiente);
-                return Ok(ambienteActualizado);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning("Ambiente no encontrado para actualizar con ID: {id}", id);
-                return NotFound(new { mensaje = ex.Message });
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Validación fallida al actualizar ambiente");
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("Ya existe"))
-            {
-                _logger.LogWarning(ex, "Intento de actualizar con código duplicado");
-                return Conflict(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al actualizar ambiente");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { mensaje = "Error al actualizar el ambiente", detalle = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            if (id <= 0)
-            {
-                _logger.LogWarning("Intento de eliminar con ID inválido: {id}", id);
-                return BadRequest(new { mensaje = "El ID debe ser mayor a cero" });
-            }
-
-            try
-            {
-                _logger.LogInformation("Eliminando ambiente con ID: {id}", id);
-                var resultado = await _service.Eliminar(id);
-                
-                if (!resultado)
-                {
-                    _logger.LogWarning("Ambiente no encontrado para eliminar con ID: {id}", id);
-                    return NotFound(new { mensaje = $"No se encontró ambiente con ID {id}" });
-                }
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al eliminar ambiente");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { mensaje = "Error al eliminar el ambiente", detalle = ex.Message });
-            }
-        }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(Ambiente ambiente)
+{
+    if (ModelState.IsValid)
+    {
+        _context.Add(ambiente);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
+
+    // Si hay error, volver a cargar el combo
+    ViewBag.Tipos = new SelectList(
+        await _context.TiposAmbiente.ToListAsync(),
+        "IdTipo",
+        "NombreTipo",
+        ambiente.IdTipo
+    );
+
+    return View(ambiente);
+}
+
+        // EDITAR POST
+       [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Ambiente ambiente)
+{
+    if (id != ambiente.IdAmbiente)
+        return NotFound();
+
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            _context.Update(ambiente);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.Ambientes.Any(e => e.IdAmbiente == ambiente.IdAmbiente))
+                return NotFound();
+            else
+                throw;
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    ViewBag.Tipos = new SelectList(
+        await _context.TiposAmbiente.ToListAsync(),
+        "IdTipo",
+        "NombreTipo",
+        ambiente.IdTipo
+    );
+
+    return View(ambiente);
+}
+        // EDITAR
+       public async Task<IActionResult> Edit(int id)
+{
+    var ambiente = await _context.Ambientes.FindAsync(id);
+
+    if (ambiente == null)
+        return NotFound();
+
+    ViewBag.Tipos = new SelectList(await _context.TiposAmbiente.ToListAsync(), "IdTipo", "NombreTipo", ambiente.IdTipo);
+
+    return View(ambiente);
+}
+
+    // DELETE GET
+public async Task<IActionResult> Delete(int id)
+{
+    var ambiente = await _context.Ambientes
+                                 .Include(a => a.TipoAmbiente)
+                                 .FirstOrDefaultAsync(a => a.IdAmbiente == id);
+
+    if (ambiente == null)
+        return NotFound();
+
+    return View(ambiente);
+}
+
+// DELETE POST
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeleteConfirmed(int id)
+{
+    var ambiente = await _context.Ambientes.FindAsync(id);
+
+    if (ambiente != null)
+    {
+        _context.Ambientes.Remove(ambiente);
+        await _context.SaveChangesAsync();
+    }
+
+    return RedirectToAction(nameof(Index));
+}
+
+
+    }
+
+    
 }
