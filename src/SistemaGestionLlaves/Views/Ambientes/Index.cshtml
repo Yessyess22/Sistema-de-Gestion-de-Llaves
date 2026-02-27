@@ -1,0 +1,42 @@
+@model IEnumerable<SistemaGestionLlaves.Models.Ambiente>
+
+@{
+    ViewData["Title"] = "Ambientes";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Lista de Ambientes</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            + Nuevo Ambiente
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td>@item.TipoAmbiente?.NombreTipo</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.IdAmbiente" class="btn btn-info btn-sm">Ver</a>
+                            <a asp-action="Edit" asp-route-id="@item.IdAmbiente" class="btn btn-warning btn-sm">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.IdAmbiente" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
