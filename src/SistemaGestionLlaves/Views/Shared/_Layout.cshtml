@@ -35,10 +35,10 @@
             <a asp-controller="LlavesView" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "LlavesView" ? "active" : "")">
                 <i class="bi bi-key"></i> Llaves
             </a>
-            <a href="#" class="menu-item">
+            <a asp-controller="Ambientes" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Ambientes" ? "active" : "")">
                 <i class="bi bi-door-open"></i> Ambientes
             </a>
-            <a href="#" class="menu-item">
+            <a asp-controller="Persona" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Persona" ? "active" : "")">
                 <i class="bi bi-people"></i> Personas
             </a>
 
