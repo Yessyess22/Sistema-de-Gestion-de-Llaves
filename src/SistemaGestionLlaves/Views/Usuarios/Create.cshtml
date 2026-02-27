@@ -1,13 +1,79 @@
 @model SistemaGestionLlaves.Models.Usuario
 @{
-    ViewData["Title"] = "Crear Usuario (Backend Stub)";
+    ViewData["Title"] = "Crear Usuario";
 }
-<h2>Crear Usuario</h2>
-<form asp-action="Create" method="post">
-    <!-- El frontend implementará sus propios campos. Estos son temporales para backend routing. -->
-    <select name="IdPersona" asp-items="ViewBag.IdPersona"></select>
-    <select name="IdRol" asp-items="ViewBag.IdRol"></select>
-    <input type="text" name="NombreUsuario" placeholder="Nombre Usuario" />
-    <input type="password" name="PasswordHash" placeholder="Contraseña" />
-    <button type="submit">Guardar</button>
-</form>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-person-plus me-2" style="color:#0369a1;"></i>Crear Usuario
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Registra un nuevo usuario y asígnale un rol.</p>
+    </div>
+    <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+<div class="ui-card">
+    <form asp-action="Create" method="post" class="row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-md-6">
+            <label asp-for="IdPersona" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Persona</label>
+            <select asp-for="IdPersona" asp-items="ViewBag.IdPersona" class="form-select" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;"></select>
+            <span asp-validation-for="IdPersona" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="IdRol" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Rol</label>
+            <select asp-for="IdRol" asp-items="ViewBag.IdRol" class="form-select" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;"></select>
+            <span asp-validation-for="IdRol" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="NombreUsuario" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Nombre de Usuario</label>
+            <input asp-for="NombreUsuario" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="PasswordHash" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Contraseña</label>
+            <input asp-for="PasswordHash" type="password" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaInicio" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha Inicio</label>
+            <input asp-for="FechaInicio" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <span asp-validation-for="FechaInicio" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaFin" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha Fin</label>
+            <input asp-for="FechaFin" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <span asp-validation-for="FechaFin" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Estado" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Estado</label>
+            <select asp-for="Estado" class="form-select" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
+                <option value="A">Activo</option>
+                <option value="I">Inactivo</option>
+                <option value="B">Bloqueado</option>
+            </select>
+            <span asp-validation-for="Estado" class="text-danger"></span>
+        </div>
+
+        <div class="col-12 d-flex gap-2 pt-2">
+            <button type="submit" class="btn px-4 py-2" style="background:#0369a1; color:white; border-radius:12px; font-weight:600; border:none;">
+                <i class="bi bi-check2 me-1"></i>Guardar
+            </button>
+            <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,11 +1,42 @@
 @model SistemaGestionLlaves.Models.Usuario
 @{
-    ViewData["Title"] = "Eliminar Usuario (Backend Stub)";
+    ViewData["Title"] = "Eliminar Usuario";
 }
-<h2>Eliminar Usuario: @Model.NombreUsuario</h2>
-<p>¿Estás seguro de que deseas eliminar este usuario?</p>
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="IdUsuario" />
-    <button type="submit">Eliminar Permanentemente</button>
-    <a asp-action="Index">Cancelar</a>
-</form>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-trash me-2" style="color:#b91c1c;"></i>Eliminar Usuario
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Esta acción eliminará el registro del usuario.</p>
+    </div>
+    <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+<div class="ui-card">
+    <div class="alert d-flex align-items-center gap-2 mb-4" style="background:#fee2e2; border:none; border-radius:12px; color:#991b1b;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        ¿Confirmas eliminar el usuario <strong>@Model.NombreUsuario</strong>?
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Persona</div>
+            <div class="fw-semibold" style="color:#0f172a;">@Model.Persona?.NombreCompleto</div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Rol</div>
+            <div class="fw-semibold" style="color:#0f172a;">@Model.Rol?.NombreRol</div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" asp-for="IdUsuario" />
+        <button type="submit" class="btn px-4 py-2" style="background:#dc2626; color:white; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-trash me-1"></i>Eliminar
+        </button>
+        <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">Cancelar</a>
+    </form>
+</div>

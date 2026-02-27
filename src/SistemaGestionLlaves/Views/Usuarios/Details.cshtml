@@ -1,14 +1,60 @@
 @model SistemaGestionLlaves.Models.Usuario
 @{
-    ViewData["Title"] = "Detalles Usuario (Backend Stub)";
+    ViewData["Title"] = "Detalle de Usuario";
 }
-<h2>Detalles de Usuario: @Model.NombreUsuario</h2>
-<ul>
-    <li>ID: @Model.IdUsuario</li>
-    <li>Persona: @Model.Persona.NombreCompleto</li>
-    <li>Rol: @Model.Rol.Nombre</li>
-    <li>Estado: @Model.Estado</li>
-    <li>Inicio: @Model.FechaInicio</li>
-    <li>Fin: @Model.FechaFin</li>
-</ul>
-<p><a asp-action="Index">Volver a la Lista</a></p>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-person-vcard me-2" style="color:#0369a1;"></i>Detalle de Usuario
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Información completa del usuario seleccionado.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.IdUsuario" class="btn px-4 py-2" style="background:#e0f2fe; color:#0369a1; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-pencil me-1"></i>Editar
+        </a>
+        <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+</div>
+
+<div class="ui-card">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Usuario</div>
+            <div class="fw-semibold" style="color:#0f172a;">@Model.NombreUsuario</div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Persona</div>
+            <div class="fw-semibold" style="color:#0f172a;">@Model.Persona?.NombreCompleto</div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Rol</div>
+            <div><span class="status-badge" style="background:#ede9fe; color:#6d28d9;">@Model.Rol?.NombreRol</span></div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Estado</div>
+            <div>
+                @{
+                    var (bg, fg, label) = Model.Estado switch
+                    {
+                        "A" => ("#dcfce7", "#166534", "Activo"),
+                        "B" => ("#fef3c7", "#92400e", "Bloqueado"),
+                        _ => ("#f1f5f9", "#64748b", "Inactivo")
+                    };
+                }
+                <span class="status-badge" style="background:@bg; color:@fg;">@label</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha de Inicio</div>
+            <div class="fw-semibold" style="color:#0f172a;">@(Model.FechaInicio?.ToString("dd/MM/yyyy HH:mm") ?? "-")</div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha de Fin</div>
+            <div class="fw-semibold" style="color:#0f172a;">@(Model.FechaFin?.ToString("dd/MM/yyyy HH:mm") ?? "-")</div>
+        </div>
+    </div>
+</div>

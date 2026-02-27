@@ -66,8 +66,8 @@ public class UsuariosController : Controller
     public IActionResult Create()
     {
         // Preparar las listas desplegables para la vista de creación
-        ViewData["IdPersona"] = new SelectList(_context.Personas, "IdPersona", "NombreCompleto");
-        ViewData["IdRol"] = new SelectList(_context.Roles, "IdRol", "Nombre");
+        ViewData["IdPersona"] = new SelectList(_context.Personas.OrderBy(p => p.Nombres).ThenBy(p => p.Apellidos), "IdPersona", "NombreCompleto");
+        ViewData["IdRol"] = new SelectList(_context.Roles.OrderBy(r => r.NombreRol), "IdRol", "NombreRol");
         return View();
     }
 
@@ -83,6 +83,8 @@ public class UsuariosController : Controller
     {
         if (ModelState.IsValid)
         {
+            usuario.FechaInicio ??= DateTime.UtcNow;
+
             // Hashear la contraseña antes de guardarla en la BD
             if(!string.IsNullOrEmpty(usuario.PasswordHash))
             {
@@ -96,7 +98,7 @@ public class UsuariosController : Controller
         
         // Si hay errores de validación, recargar las listas desplegables
         ViewData["IdPersona"] = new SelectList(_context.Personas, "IdPersona", "NombreCompleto", usuario.IdPersona);
-        ViewData["IdRol"] = new SelectList(_context.Roles, "IdRol", "Nombre", usuario.IdRol);
+        ViewData["IdRol"] = new SelectList(_context.Roles.OrderBy(r => r.NombreRol), "IdRol", "NombreRol", usuario.IdRol);
         return View(usuario);
     }
 
@@ -119,8 +121,8 @@ public class UsuariosController : Controller
             return NotFound();
         }
         
-        ViewData["IdPersona"] = new SelectList(_context.Personas, "IdPersona", "NombreCompleto", usuario.IdPersona);
-        ViewData["IdRol"] = new SelectList(_context.Roles, "IdRol", "Nombre", usuario.IdRol);
+        ViewData["IdPersona"] = new SelectList(_context.Personas.OrderBy(p => p.Nombres).ThenBy(p => p.Apellidos), "IdPersona", "NombreCompleto", usuario.IdPersona);
+        ViewData["IdRol"] = new SelectList(_context.Roles.OrderBy(r => r.NombreRol), "IdRol", "NombreRol", usuario.IdRol);
         return View(usuario);
     }
 
@@ -182,7 +184,7 @@ public class UsuariosController : Controller
         
         // Si hay error en validación, recargar listas
         ViewData["IdPersona"] = new SelectList(_context.Personas, "IdPersona", "NombreCompleto", usuario.IdPersona);
-        ViewData["IdRol"] = new SelectList(_context.Roles, "IdRol", "Nombre", usuario.IdRol);
+        ViewData["IdRol"] = new SelectList(_context.Roles.OrderBy(r => r.NombreRol), "IdRol", "NombreRol", usuario.IdRol);
         return View(usuario);
     }
 

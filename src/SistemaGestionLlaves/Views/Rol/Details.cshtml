@@ -1,15 +1,47 @@
 @model SistemaGestionLlaves.Models.Rol
 @{
-    ViewData["Title"] = "Detalles Rol";
+    ViewData["Title"] = "Detalle de Rol";
 }
-<h2>Detalles Rol</h2>
-<ul>
-    <li>ID: @Model.IdRol</li>
-    <li>Nombre: @Model.NombreRol</li>
-    <li>Descripción: @Model.Descripcion</li>
-    <li>Estado: @Model.Estado</li>
-</ul>
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.IdRol">Editar</a> |
-    <a asp-action="Index">Volver a la lista</a>
-</p>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-shield-check me-2" style="color:#0369a1;"></i>Detalle de Rol
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Información del rol seleccionado.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.IdRol" class="btn px-4 py-2" style="background:#e0f2fe; color:#0369a1; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-pencil me-1"></i>Editar
+        </a>
+        <a asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+</div>
+
+<div class="ui-card">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Nombre</div>
+            <div class="fw-semibold" style="color:#0f172a;">@Model.NombreRol</div>
+        </div>
+        <div class="col-md-6">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Estado</div>
+            <div>
+                @if (Model.Estado == "A")
+                {
+                    <span class="status-badge" style="background:#dcfce7; color:#166534;">Activo</span>
+                }
+                else
+                {
+                    <span class="status-badge" style="background:#f1f5f9; color:#64748b;">Inactivo</span>
+                }
+            </div>
+        </div>
+        <div class="col-12">
+            <div style="color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Descripción</div>
+            <div class="fw-semibold" style="color:#0f172a;">@(string.IsNullOrWhiteSpace(Model.Descripcion) ? "-" : Model.Descripcion)</div>
+        </div>
+    </div>
+</div>

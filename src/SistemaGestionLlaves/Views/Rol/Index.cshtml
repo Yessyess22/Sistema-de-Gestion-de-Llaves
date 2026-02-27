@@ -2,32 +2,90 @@
 @{
     ViewData["Title"] = "Roles";
 }
-<h2>Roles</h2>
-<p><a asp-action="Create">Nuevo Rol</a></p>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach(var item in Model)
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-shield-lock me-2" style="color:#0369a1;"></i>Gestión de Roles
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Administra los roles disponibles para los usuarios.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Usuarios" asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+            <i class="bi bi-people me-1"></i>Volver a Usuarios
+        </a>
+        <a asp-action="Create" class="btn d-flex align-items-center gap-2 px-4 py-2"
+           style="background:#0369a1; border-color:#0369a1; color:white; border-radius:12px; font-weight:600;">
+            <i class="bi bi-plus-lg"></i> Nuevo Rol
+        </a>
+    </div>
+</div>
+
+<div class="ui-card">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="card-title mb-0">Lista de Roles</h3>
+        <span style="color:#94a3b8; font-size:0.85rem;">@Model.Count() rol(es)</span>
+    </div>
+
+    @if (!Model.Any())
     {
-        <tr>
-            <td>@item.IdRol</td>
-            <td>@item.NombreRol</td>
-            <td>@item.Descripcion</td>
-            <td>@item.Estado</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.IdRol">Ver</a> |
-                <a asp-action="Edit" asp-route-id="@item.IdRol">Editar</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdRol">Eliminar</a>
-            </td>
-        </tr>
+        <div class="text-center py-5" style="color:#94a3b8;">
+            <i class="bi bi-shield-x" style="font-size:3rem; display:block; margin-bottom:12px;"></i>
+            <p class="mb-0">No hay roles registrados.</p>
+        </div>
     }
-    </tbody>
-</table>
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th style="text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:36px; height:36px; background:#e0f2fe; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#0369a1;">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <span class="fw-bold" style="color:#0f172a;">@item.NombreRol</span>
+                                </div>
+                            </td>
+                            <td style="color:#334155;">@(string.IsNullOrWhiteSpace(item.Descripcion) ? "-" : item.Descripcion)</td>
+                            <td>
+                                @if (item.Estado == "A")
+                                {
+                                    <span class="status-badge" style="background:#dcfce7; color:#166534;">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge" style="background:#f1f5f9; color:#64748b;">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a asp-action="Details" asp-route-id="@item.IdRol" class="btn btn-sm" title="Ver" style="background:#f1f5f9; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.IdRol" class="btn btn-sm" title="Editar" style="background:#e0f2fe; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdRol" class="btn btn-sm" title="Eliminar" style="background:#fee2e2; color:#991b1b; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

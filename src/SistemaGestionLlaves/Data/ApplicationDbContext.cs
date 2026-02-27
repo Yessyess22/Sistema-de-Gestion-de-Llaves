@@ -61,10 +61,10 @@ public class ApplicationDbContext : DbContext
             e.ToTable("Rol");
             e.HasKey(r => r.IdRol);
             e.Property(r => r.IdRol).HasColumnName("id_rol").UseIdentityByDefaultColumn();
-            e.Property(r => r.Nombre).HasColumnName("nombre_rol").HasMaxLength(80).IsRequired();
+            e.Property(r => r.NombreRol).HasColumnName("nombre_rol").HasMaxLength(80).IsRequired();
             e.Property(r => r.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
             e.Property(r => r.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
-            e.HasIndex(r => r.Nombre).IsUnique().HasDatabaseName("UQ_Rol_Nombre");
+            e.HasIndex(r => r.NombreRol).IsUnique().HasDatabaseName("UQ_Rol_Nombre");
         });
 
         // ── Permiso ──────────────────────────────────────────

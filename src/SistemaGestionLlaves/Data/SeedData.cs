@@ -30,19 +30,19 @@ public static class SeedData
             context.Roles.AddRange(
                 new Rol
                 {
-                    Nombre = "Administrador",
+                    NombreRol = "Administrador",
                     Descripcion = "Acceso total al sistema. Gestiona usuarios, llaves y configuración.",
                     Estado = "A"
                 },
                 new Rol
                 {
-                    Nombre = "Operador",
+                    NombreRol = "Operador",
                     Descripcion = "Registra préstamos, devoluciones y reservas de llaves.",
                     Estado = "A"
                 },
                 new Rol
                 {
-                    Nombre = "Consultor",
+                    NombreRol = "Consultor",
                     Descripcion = "Solo puede consultar el estado de las llaves y reportes.",
                     Estado = "A"
                 }
@@ -96,7 +96,7 @@ public static class SeedData
                 await context.SaveChangesAsync();
             }
 
-            var rolAdmin = context.Roles.First(r => r.Nombre == "Administrador");
+            var rolAdmin = context.Roles.First(r => r.NombreRol == "Administrador");
 
             context.Usuarios.Add(new Usuario
             {

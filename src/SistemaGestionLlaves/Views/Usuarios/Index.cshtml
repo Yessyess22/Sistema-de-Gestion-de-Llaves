@@ -1,28 +1,107 @@
 @model IEnumerable<SistemaGestionLlaves.Models.Usuario>
 @{
-    ViewData["Title"] = "Index Usuarios (Backend Stub)";
+    ViewData["Title"] = "Usuarios";
 }
-<h2>Lista de Usuarios</h2>
-<p><a asp-action="Create">Crear Nuevo</a></p>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Nombre Usuario</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>@item.NombreUsuario</td>
-            <td>@item.Estado</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdUsuario">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IdUsuario">Detalles</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdUsuario">Eliminar</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-people me-2" style="color:#0369a1;"></i>Gestión de Usuarios
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Administra usuarios del sistema y sus roles.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Rol" asp-action="Index" class="btn d-flex align-items-center gap-2 px-4 py-2"
+           style="background:#e0f2fe; border-color:#e0f2fe; color:#0369a1; border-radius:12px; font-weight:600;">
+            <i class="bi bi-shield-lock"></i> Gestionar Roles
+        </a>
+        <a asp-action="Create" class="btn d-flex align-items-center gap-2 px-4 py-2"
+           style="background:#0369a1; border-color:#0369a1; color:white; border-radius:12px; font-weight:600;">
+            <i class="bi bi-plus-lg"></i> Nuevo Usuario
+        </a>
+    </div>
+</div>
+
+<div class="ui-card">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h3 class="card-title mb-0">Lista de Usuarios</h3>
+        <span style="color:#94a3b8; font-size:0.85rem;">@Model.Count() usuario(s)</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5" style="color:#94a3b8;">
+            <i class="bi bi-person-x" style="font-size:3rem; display:block; margin-bottom:12px;"></i>
+            <p class="mb-0">No hay usuarios registrados.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Persona</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Inicio</th>
+                        <th style="text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:36px; height:36px; background:#e0f2fe; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#0369a1;">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    <span class="fw-bold" style="color:#0f172a;">@item.NombreUsuario</span>
+                                </div>
+                            </td>
+                            <td style="color:#334155;">@item.Persona?.NombreCompleto</td>
+                            <td>
+                                <span class="status-badge" style="background:#ede9fe; color:#6d28d9;">@item.Rol?.NombreRol</span>
+                            </td>
+                            <td>
+                                @{
+                                    var (bg, fg, label, icon) = item.Estado switch
+                                    {
+                                        "A" => ("#dcfce7", "#166534", "Activo", "check-circle"),
+                                        "B" => ("#fef3c7", "#92400e", "Bloqueado", "lock"),
+                                        _ => ("#f1f5f9", "#64748b", "Inactivo", "x-circle")
+                                    };
+                                }
+                                <span class="status-badge" style="background:@bg; color:@fg;">
+                                    <i class="bi bi-@icon me-1"></i>@label
+                                </span>
+                            </td>
+                            <td style="color:#334155;">@(item.FechaInicio?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a asp-action="Details" asp-route-id="@item.IdUsuario"
+                                       class="btn btn-sm" title="Ver detalles"
+                                       style="background:#f1f5f9; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.IdUsuario"
+                                       class="btn btn-sm" title="Editar"
+                                       style="background:#e0f2fe; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdUsuario"
+                                       class="btn btn-sm" title="Eliminar"
+                                       style="background:#fee2e2; color:#991b1b; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
