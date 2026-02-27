@@ -1,0 +1,60 @@
+@model IEnumerable<SistemaGestionLlaves.Models.Persona>
+
+@{
+    ViewData["Title"] = "Personas";
+}
+
+<h2 class="mb-4">Listado de Personas</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get">
+            <div class="input-group">
+                <input type="text" name="buscar" class="form-control" placeholder="Buscar por nombre, apellido o CI..." />
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-success">Nueva Persona</a>
+    </div>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre Completo</th>
+            <th>CI</th>
+            <th>Correo</th>
+            <th>Celular</th>
+            <th>Estado</th>
+            <th style="width: 180px;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>@item.NombreCompleto</td>
+            <td>@item.Ci</td>
+            <td>@item.Correo</td>
+            <td>@item.Celular</td>
+            <td>
+                @if (item.Estado == "A")
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactivo</span>
+                }
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.IdPersona" class="btn btn-info btn-sm">Ver</a>
+                <a asp-action="Edit" asp-route-id="@item.IdPersona" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-action="Delete" asp-route-id="@item.IdPersona" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
