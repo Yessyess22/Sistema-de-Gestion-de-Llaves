@@ -27,7 +27,9 @@ public class Usuario
     public string Estado { get; set; } = "A";
 
     // Navegación
+    [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
     public Persona Persona { get; set; } = null!;
+    [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
     public Rol Rol { get; set; } = null!;
     public ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
     public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();

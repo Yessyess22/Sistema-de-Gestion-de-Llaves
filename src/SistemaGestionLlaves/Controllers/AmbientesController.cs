@@ -17,25 +17,27 @@ namespace SistemaGestionLlaves.Controllers
 
         // LISTAR
         public async Task<IActionResult> Index()
+        {
+            var ambientes = await _context.Ambientes
+                .Include(a => a.TipoAmbiente)
+                .Include(a => a.Llaves)
+                .ToListAsync();
+
+            return View(ambientes);
+        }
+
+    public async Task<IActionResult> Details(int id)
     {
-        var ambientes = await _context.Ambientes
-        .Include(a => a.TipoAmbiente)
-        .ToListAsync();
+        var ambiente = await _context.Ambientes
+            .Include(a => a.TipoAmbiente)
+            .Include(a => a.Llaves)
+            .FirstOrDefaultAsync(a => a.IdAmbiente == id);
 
-         return View(ambientes);
-   }
+        if (ambiente == null)
+            return NotFound();
 
-   public async Task<IActionResult> Details(int id)
-{
-    var ambiente = await _context.Ambientes
-        .Include(a => a.TipoAmbiente)
-        .FirstOrDefaultAsync(a => a.IdAmbiente == id);
-
-    if (ambiente == null)
-        return NotFound();
-
-    return View(ambiente);
-}
+        return View(ambiente);
+    }
 
         // CREAR GET
         public async Task<IActionResult> Create()

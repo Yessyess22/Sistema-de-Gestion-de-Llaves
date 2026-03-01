@@ -43,19 +43,7 @@
             <span asp-validation-for="PasswordHash" class="text-danger"></span>
         </div>
 
-        <div class="col-md-4">
-            <label asp-for="FechaInicio" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha Inicio</label>
-            <input asp-for="FechaInicio" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
-            <span asp-validation-for="FechaInicio" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-4">
-            <label asp-for="FechaFin" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Fecha Fin</label>
-            <input asp-for="FechaFin" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
-            <span asp-validation-for="FechaFin" class="text-danger"></span>
-        </div>
-
-        <div class="col-md-4">
+        <div class="col-md-12">
             <label asp-for="Estado" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Estado</label>
             <select asp-for="Estado" class="form-select" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
                 <option value="A">Activo</option>
