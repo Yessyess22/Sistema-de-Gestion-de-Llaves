@@ -123,12 +123,13 @@ public async Task<IActionResult> Edit(int id, Ambiente ambiente)
     return View(ambiente);
 }
 
-    // DELETE GET
+
+// DELETE GET
 public async Task<IActionResult> Delete(int id)
 {
     var ambiente = await _context.Ambientes
-                                 .Include(a => a.TipoAmbiente)
-                                 .FirstOrDefaultAsync(a => a.IdAmbiente == id);
+        .Include(a => a.TipoAmbiente)
+        .FirstOrDefaultAsync(a => a.IdAmbiente == id);
 
     if (ambiente == null)
         return NotFound();
@@ -141,16 +142,17 @@ public async Task<IActionResult> Delete(int id)
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> DeleteConfirmed(int id)
 {
-    var ambiente = await _context.Ambientes.FindAsync(id);
+    var ambiente = await _context.Ambientes
+        .FirstOrDefaultAsync(a => a.IdAmbiente == id);
 
-    if (ambiente != null)
-    {
-        _context.Ambientes.Remove(ambiente);
-        await _context.SaveChangesAsync();
-    }
+    if (ambiente == null)
+        return NotFound();
+
+    _context.Ambientes.Remove(ambiente);
+    await _context.SaveChangesAsync();
 
     return RedirectToAction(nameof(Index));
-}
+}  
 
 
     }
