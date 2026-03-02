@@ -142,17 +142,25 @@ public async Task<IActionResult> Delete(int id)
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> DeleteConfirmed(int id)
 {
-    var ambiente = await _context.Ambientes
-        .FirstOrDefaultAsync(a => a.IdAmbiente == id);
+    var tieneLlaves = _context.Llaves.Any(l => l.IdAmbiente == id);
 
-    if (ambiente == null)
-        return NotFound();
+    if (tieneLlaves)
+    {
+        ModelState.AddModelError("", "No se puede eliminar el ambiente porque tiene llaves asociadas.");
+        var ambiente = await _context.Ambientes.FindAsync(id);
+        return View(ambiente);
+    }
 
-    _context.Ambientes.Remove(ambiente);
-    await _context.SaveChangesAsync();
+    var ambienteEliminar = await _context.Ambientes.FindAsync(id);
+
+    if (ambienteEliminar != null)
+    {
+        _context.Ambientes.Remove(ambienteEliminar);
+        await _context.SaveChangesAsync();
+    }
 
     return RedirectToAction(nameof(Index));
-}  
+}
 
 
     }
