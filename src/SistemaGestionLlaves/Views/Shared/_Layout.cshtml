@@ -28,7 +28,8 @@
                class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Prestamos" ? "active" : "")">
                 <i class="bi bi-arrow-left-right"></i> Préstamos
             </a>
-            <a href="#" class="menu-item">
+            <a asp-controller="Reservas" asp-action="Index"
+               class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reservas" ? "active" : "")">
                 <i class="bi bi-calendar-check"></i> Reservas
             </a>
 
@@ -41,10 +42,6 @@
             </a>
             <a asp-controller="Persona" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Persona" ? "active" : "")">
                 <i class="bi bi-people"></i> Personas
-            </a>
-
-            <a class="nav-link" asp-controller="Reservas" asp-action="Index">
-                <i class="bi bi-calendar-check"></i> Reservas
             </a>
 
             <div class="menu-label">Sistema</div>
