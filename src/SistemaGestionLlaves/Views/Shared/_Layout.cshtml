@@ -43,6 +43,10 @@
                 <i class="bi bi-people"></i> Personas
             </a>
 
+            <a class="nav-link" asp-controller="Reservas" asp-action="Index">
+                <i class="bi bi-calendar-check"></i> Reservas
+            </a>
+
             <div class="menu-label">Sistema</div>
             <a href="#" class="menu-item">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reportes
@@ -89,5 +93,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
