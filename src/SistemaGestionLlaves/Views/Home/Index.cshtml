@@ -35,14 +35,14 @@
                     <p class="number-subtitle mb-4">Al @DateTime.Now.ToString("dd 'de' MMMM, HH:mm")</p>
                     
                     <div class="d-flex justify-content-center gap-3 mt-2">
-                        <button class="btn btn-light rounded-3 px-4 py-2 border">
+                        <a asp-controller="Prestamos" asp-action="Crear" class="btn btn-light rounded-3 px-4 py-2 border">
                             <i class="bi bi-box-arrow-right d-block mb-1 fs-5"></i>
                             Prestar
-                        </button>
-                        <button class="btn btn-light rounded-3 px-4 py-2 border">
+                        </a>
+                        <a asp-controller="Prestamos" asp-action="Index" class="btn btn-light rounded-3 px-4 py-2 border">
                             <i class="bi bi-box-arrow-in-left d-block mb-1 fs-5 text-success"></i>
                             Recibir
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
