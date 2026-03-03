@@ -79,11 +79,11 @@ public class UsuariosController : Controller
     /// <returns>Redirección a Index si es exitoso o la vista de creación si hay error.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("IdPersona,IdRol,NombreUsuario,PasswordHash,FechaInicio,FechaFin,Estado")] Usuario usuario)
+    public async Task<IActionResult> Create([Bind("IdPersona,IdRol,NombreUsuario,PasswordHash,Estado")] Usuario usuario)
     {
         if (ModelState.IsValid)
         {
-            usuario.FechaInicio ??= DateTime.UtcNow;
+            usuario.FechaInicio = DateTime.UtcNow;
 
             // Hashear la contraseña antes de guardarla en la BD
             if(!string.IsNullOrEmpty(usuario.PasswordHash))
@@ -135,7 +135,7 @@ public class UsuariosController : Controller
     /// <returns>Redirección a Index si es exitoso, NotFound o redirección a Edit si hay error.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("IdUsuario,IdPersona,IdRol,NombreUsuario,PasswordHash,FechaInicio,FechaFin,Estado")] Usuario usuario)
+    public async Task<IActionResult> Edit(int id, [Bind("IdUsuario,IdPersona,IdRol,NombreUsuario,PasswordHash,Estado")] Usuario usuario)
     {
         if (id != usuario.IdUsuario)
         {

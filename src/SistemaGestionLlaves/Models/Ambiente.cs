@@ -25,6 +25,8 @@ public class Ambiente
     public string Estado { get; set; } = "A";
 
     // Navegación
+    [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
     public TipoAmbiente TipoAmbiente { get; set; } = null!;
+    [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
     public ICollection<Llave> Llaves { get; set; } = new List<Llave>();
 }

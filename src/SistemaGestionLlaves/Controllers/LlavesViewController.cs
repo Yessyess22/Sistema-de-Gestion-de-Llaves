@@ -20,11 +20,14 @@ public class LlavesViewController : Controller
     }
 
     // GET: Llaves
-    public async Task<IActionResult> Index(string? busqueda, string? estado)
+    public async Task<IActionResult> Index(string? busqueda, string? estado, int? idAmbiente)
     {
         var query = _context.Llaves
             .Include(l => l.Ambiente)
             .AsQueryable();
+
+        if (idAmbiente.HasValue)
+            query = query.Where(l => l.IdAmbiente == idAmbiente.Value);
 
         if (!string.IsNullOrWhiteSpace(estado))
             query = query.Where(l => l.Estado == estado);
@@ -36,6 +39,7 @@ public class LlavesViewController : Controller
 
         ViewData["busqueda"] = busqueda;
         ViewData["estado"] = estado;
+        ViewData["idAmbiente"] = idAmbiente;
 
         var llaves = await query
             .OrderBy(l => l.Ambiente.Nombre)

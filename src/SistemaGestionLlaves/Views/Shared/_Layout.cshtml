@@ -44,7 +44,7 @@
             </a>
 
             <div class="menu-label">Sistema</div>
-            <a href="#" class="menu-item">
+            <a asp-controller="Reportes" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reportes" ? "active" : "")">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reportes
             </a>
             <a asp-controller="Usuarios" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" ? "active" : "")">

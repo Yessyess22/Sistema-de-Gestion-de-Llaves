@@ -10,7 +10,8 @@
     <strong>Tipo:</strong> @Model.TipoAmbiente.NombreTipo <br />
 </div>
 
-<form asp-action="Delete">
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="IdAmbiente" />
     <button type="submit" class="btn btn-danger">Eliminar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
