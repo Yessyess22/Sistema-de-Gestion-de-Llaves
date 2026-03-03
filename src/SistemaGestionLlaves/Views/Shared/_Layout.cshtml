@@ -63,10 +63,20 @@
     <div class="main-wrapper">
         <!-- Top Navbar -->
         <header class="top-navbar">
-            <div class="page-title">
-                <h1>@(ViewData["Title"] ?? "Dashboard")</h1>
-                <p>Hola, @(User.FindFirst("NombreCompleto")?.Value ?? User.Identity?.Name ?? "Usuario"). Aquí tienes el resumen de hoy.</p>
-            </div>
+            @if (!(ViewData["HideTopHeader"] as bool? ?? false))
+            {
+                <div class="page-title">
+                    <h1>@(ViewData["Title"] ?? "Dashboard")</h1>
+                    @if (!(ViewData["HideTopSubtitle"] as bool? ?? false))
+                    {
+                        <p>Hola, @(User.FindFirst("NombreCompleto")?.Value ?? User.Identity?.Name ?? "Usuario"). Aquí tienes el resumen de hoy.</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div></div>
+            }
             <div class="top-actions">
                 <button class="action-btn" title="Notificaciones">
                     <i class="bi bi-bell"></i>

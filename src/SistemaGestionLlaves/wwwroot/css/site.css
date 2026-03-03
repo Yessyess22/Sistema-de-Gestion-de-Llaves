@@ -278,3 +278,48 @@ body {
     color: #fbbf24;
 }
 
+.report-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.report-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.report-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(3, 105, 161, 0.06), rgba(56, 189, 248, 0.03));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.report-card-link:hover .report-card,
+.report-card-link:focus .report-card {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 22px -12px rgba(2, 132, 199, 0.35);
+    border-color: rgba(3, 105, 161, 0.18);
+}
+
+.report-card-link:hover .report-card::after,
+.report-card-link:focus .report-card::after {
+    opacity: 1;
+}
+
+.report-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
