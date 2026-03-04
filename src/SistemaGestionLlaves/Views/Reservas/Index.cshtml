@@ -131,8 +131,8 @@
         tbody.innerHTML = data.map(r => `
             <tr>
                 <td>#${r.idReserva}</td>
-                <td><strong>${r.llave?.codigo ?? '—'}</strong></td>
-                <td>${r.persona?.nombre ?? '—'}</td>
+                <td><strong>${r.llave ?? '—'}</strong></td>
+                <td>${r.persona ?? '—'}</td>
                 <td>${fmtFecha(r.fechaInicio)}</td>
                 <td>${fmtFecha(r.fechaFin)}</td>
                 <td>${estadoBadge(r.estado)}</td>
