@@ -28,7 +28,8 @@
                class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Prestamos" ? "active" : "")">
                 <i class="bi bi-arrow-left-right"></i> Préstamos
             </a>
-            <a href="#" class="menu-item">
+            <a asp-controller="Reservas" asp-action="Index"
+               class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reservas" ? "active" : "")">
                 <i class="bi bi-calendar-check"></i> Reservas
             </a>
 
@@ -43,9 +44,7 @@
                 <i class="bi bi-people"></i> Personas
             </a>
 
-            <a class="nav-link" asp-controller="Reservas" asp-action="Index">
-                <i class="bi bi-calendar-check"></i> Reservas
-            </a>
+
 
             <div class="menu-label">Sistema</div>
             <a asp-controller="Reportes" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reportes" ? "active" : "")">
@@ -103,6 +102,5 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
-    @RenderSection("Scripts", required: false)
 </body>
 </html>

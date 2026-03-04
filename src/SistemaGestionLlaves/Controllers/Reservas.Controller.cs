@@ -33,6 +33,6 @@ public class ReservasController : Controller
                 Text = p.NombreCompleto
             }).ToListAsync();
 
-        return View();
+        return View("Create");
     }
 }
