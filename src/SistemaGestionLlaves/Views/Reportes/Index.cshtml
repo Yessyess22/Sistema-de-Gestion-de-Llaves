@@ -1,281 +1,106 @@
 @{
-    ViewData["Title"] = "Reportes y Estadísticas";
+    ViewData["Title"] = "Reportes";
+    ViewData["HideTopSubtitle"] = true;
+    ViewData["HideTopHeader"] = true;
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary"><i class="fas fa-chart-line me-2"></i> @ViewData["Title"]</h2>
-    </div>
-
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="fecha-tab" data-bs-toggle="tab" data-bs-target="#fecha" type="button" role="tab">
-                <i class="fas fa-calendar-alt me-2"></i> Préstamos por Fecha
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="persona-tab" data-bs-toggle="tab" data-bs-target="#persona" type="button" role="tab">
-                <i class="fas fa-user-clock me-2"></i> Historial por Persona
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="ranking-tab" data-bs-toggle="tab" data-bs-target="#ranking" type="button" role="tab">
-                <i class="fas fa-star me-2"></i> Ranking de Llaves
-            </button>
-        </li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content shadow-sm p-4 bg-white rounded">
-        <!-- Reporte 1: Por Fecha -->
-        <div class="tab-pane fade show active" id="fecha" role="tabpanel">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Inicio</label>
-                    <input type="date" id="fechaInicio" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Fin</label>
-                    <input type="date" id="fechaFin" class="form-control">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary w-100" onclick="cargarReporteFecha()">
-                        <i class="fas fa-search me-2"></i> Consultar
-                    </button>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover" id="tablaFecha">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Llave</th>
-                            <th>Persona</th>
-                            <th>Estado</th>
-                            <th>Devolución</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Reporte 2: Por Persona -->
-        <div class="tab-pane fade" id="persona" role="tabpanel">
-            <div class="row mb-3">
-                <div class="col-md-8">
-                    <label class="form-label">Seleccionar Persona</label>
-                    <select id="selectPersona" class="form-select"></select>
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary w-100" onclick="cargarReportePersona()">
-                        <i class="fas fa-search me-2"></i> Consultar
-                    </button>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover" id="tablaPersona">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Llave</th>
-                            <th>Estado</th>
-                            <th>Devolución</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Reporte 3: Ranking Estadístico -->
-        <div class="tab-pane fade" id="ranking" role="tabpanel">
-            <div class="row">
-                <div class="col-md-8 offset-md-2">
-                    <canvas id="chartRanking" style="max-height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-file-earmark-bar-graph me-2" style="color:#0369a1;"></i>Centro de Reportes
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Selecciona el tipo de reporte para abrir su vista detallada.</p>
     </div>
 </div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const URL_PERSONAS = '@Url.Action("GetPersonas", "Reportes")';
-        const URL_FECHA    = '@Url.Action("GetPrestamosPorFecha", "Reportes")';
-        const URL_HISTORIAL = '@Url.Action("GetHistorialPersona", "Reportes")';
-        const URL_RANKING  = '@Url.Action("GetRankingLlaves", "Reportes")';
+<div class="row g-4">
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="Reservas" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#e0f2fe; color:#0369a1;">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Reporte de Reservas</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Consulta reservas por rango de fechas y ambiente.</p>
+            </div>
+        </a>
+    </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("Inicializando Reportes...");
-            console.log("URLs configuradas:", { URL_PERSONAS, URL_FECHA, URL_HISTORIAL, URL_RANKING });
-            
-            // Cargar lista de personas al iniciar
-            fetch(URL_PERSONAS)
-                .then(async r => {
-                    if (!r.ok) {
-                        const errText = await r.text();
-                        throw new Error(`HTTP ${r.status}: ${errText}`);
-                    }
-                    return r.json();
-                })
-                .then(data => {
-                    console.log("Personas cargadas:", data.length);
-                    const select = document.getElementById('selectPersona');
-                    select.innerHTML = '<option value="">-- Seleccione una persona --</option>';
-                    data.forEach(p => {
-                        const opt = document.createElement('option');
-                        opt.value = p.idPersona;
-                        opt.textContent = p.nombre;
-                        select.appendChild(opt);
-                    });
-                })
-                .catch(err => {
-                    console.error("Error al cargar personas:", err);
-                    const select = document.getElementById('selectPersona');
-                    select.innerHTML = `<option value="">Error: ${err.message}</option>`;
-                });
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="Prestamos" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#dbeafe; color:#1e40af;">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Reporte de Préstamos</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Filtra préstamos por periodo, estado y ambiente con métricas resumen.</p>
+            </div>
+        </a>
+    </div>
 
-            // Configurar fechas por defecto (último mes)
-            const hoy = new Date().toISOString().split('T')[0];
-            const haceMes = new Date();
-            haceMes.setMonth(haceMes.getMonth() - 1);
-            document.getElementById('fechaFin').value = hoy;
-            document.getElementById('fechaInicio').value = haceMes.toISOString().split('T')[0];
-            
-            // Cargar ranking automáticamente al entrar en la pestaña
-            const rankingTab = document.getElementById('ranking-tab');
-            if (rankingTab) {
-                rankingTab.addEventListener('click', cargarRanking);
-            }
-        });
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="TopPersonas" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#ede9fe; color:#6d28d9;">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Top Personas Solicitantes</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Visualiza en gráfico las personas con más préstamos y reservas.</p>
+            </div>
+        </a>
+    </div>
 
-        function cargarReporteFecha() {
-            const inicio = document.getElementById('fechaInicio').value;
-            const fin = document.getElementById('fechaFin').value;
-            
-            if (!inicio || !fin) {
-                alert("Por favor seleccione ambas fechas");
-                return;
-            }
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="InventarioLlaves" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#dcfce7; color:#166534;">
+                        <i class="bi bi-key"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Inventario de Llaves</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Estado actual de cada llave, historial de préstamos y último solicitante.</p>
+            </div>
+        </a>
+    </div>
 
-            console.log(`Consultando fechas: ${inicio} a ${fin}`);
-            fetch(`${URL_FECHA}?inicio=${inicio}&fin=${fin}`)
-                .then(async r => {
-                    if (!r.ok) {
-                        const errData = await r.json().catch(() => ({ message: r.statusText }));
-                        throw new Error(errData.message || `Error ${r.status}`);
-                    }
-                    return r.json();
-                })
-                .then(data => {
-                    const tbody = document.querySelector('#tablaFecha tbody');
-                    tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" class="text-center">No hay datos para este rango</td></tr>' : '';
-                    data.forEach(p => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${new Date(p.fechaHoraPrestamo).toLocaleString()}</td>
-                                <td><strong>${p.llave}</strong></td>
-                                <td>${p.persona}</td>
-                                <td><span class="badge ${getEstadoBadge(p.estado)}">${p.estado}</span></td>
-                                <td>${p.fechaHoraDevolucionReal ? new Date(p.fechaHoraDevolucionReal).toLocaleString() : '-'}</td>
-                            </tr>
-                        `;
-                    });
-                })
-                .catch(err => {
-                    console.error("Error en reporte de fechas:", err);
-                    alert(`Error: ${err.message}`);
-                });
-        }
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="PrestamosVencidos" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#fee2e2; color:#dc2626;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Préstamos Vencidos</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Préstamos activos cuya fecha de devolución ya fue superada.</p>
+            </div>
+        </a>
+    </div>
 
-        function cargarReportePersona() {
-            const id = document.getElementById('selectPersona').value;
-            if (!id) {
-                alert("Por favor seleccione una persona");
-                return;
-            }
-
-            fetch(`${URL_HISTORIAL}?idPersona=${id}`)
-                .then(async r => {
-                    if (!r.ok) {
-                        const errText = await r.text();
-                        throw new Error(`HTTP ${r.status}: ${errText}`);
-                    }
-                    return r.json();
-                })
-                .then(data => {
-                    const tbody = document.querySelector('#tablaPersona tbody');
-                    tbody.innerHTML = '';
-                    
-                    if (data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay datos para esta persona</td></tr>';
-                        return;
-                    }
-
-                    let html = '';
-                    data.forEach(p => {
-                        const fechaP = p.fechaHoraPrestamo ? new Date(p.fechaHoraPrestamo).toLocaleString() : 'N/A';
-                        const fechaD = p.fechaHoraDevolucionReal ? new Date(p.fechaHoraDevolucionReal).toLocaleString() : '-';
-                        
-                        html += `
-                            <tr>
-                                <td>${fechaP}</td>
-                                <td><strong>${p.llave || 'N/A'}</strong></td>
-                                <td><span class="badge ${getEstadoBadge(p.estado)}">${p.estado || '?'}</span></td>
-                                <td>${fechaD}</td>
-                            </tr>
-                        `;
-                    });
-                    tbody.innerHTML = html;
-                })
-                .catch(err => {
-                    console.error("Error en reporte de persona:", err);
-                    alert(`Error al cargar el historial: ${err.message}`);
-                });
-        }
-
-        let myChart;
-        function cargarRanking() {
-            fetch(URL_RANKING)
-                .then(async r => {
-                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                    return r.json();
-                })
-                .then(data => {
-                    const ctx = document.getElementById('chartRanking').getContext('2d');
-                    if (myChart) myChart.destroy();
-                    
-                    myChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.map(d => d.llave),
-                            datasets: [{
-                                label: 'Cantidad de Préstamos',
-                                data: data.map(d => d.cantidad),
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: { y: { beginAtZero: true, stepSize: 1 } }
-                        }
-                    });
-                })
-                .catch(err => console.error("Error en ranking:", err));
-        }
-
-        function getEstadoBadge(estado) {
-            switch(estado) {
-                case 'A': return 'bg-success';
-                case 'D': return 'bg-info';
-                case 'V': return 'bg-danger';
-                default: return 'bg-secondary';
-            }
-        }
-    </script>
-}
+    <div class="col-lg-4 col-md-6">
+        <a asp-controller="Reportes" asp-action="ActividadAmbiente" class="report-card-link">
+            <div class="ui-card report-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="report-icon" style="background:#fef3c7; color:#92400e;">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <i class="bi bi-arrow-right" style="color:#94a3b8;"></i>
+                </div>
+                <h5 class="card-title mb-2">Actividad por Ambiente</h5>
+                <p class="mb-0" style="color:#64748b; font-size:0.9rem;">Préstamos y reservas consolidados por ambiente con promedio de uso.</p>
+            </div>
+        </a>
+    </div>
+</div>
