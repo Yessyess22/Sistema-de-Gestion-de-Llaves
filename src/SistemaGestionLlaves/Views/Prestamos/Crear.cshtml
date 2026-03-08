@@ -40,7 +40,7 @@
                 <option value="">-- Seleccione una llave disponible --</option>
                 @foreach (var item in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewData["Llaves"]!)
                 {
-                    <option value="@item.Value">@item.Text</option>
+                    <option value="@item.Value" selected="@(item.Value == ViewData["SelectedIdLlave"]?.ToString())">@item.Text</option>
                 }
             </select>
         </div>
@@ -77,9 +77,26 @@
                    style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
                 Observaciones
             </label>
-            <textarea id="observaciones" class="form-control" rows="3" maxlength="300"
+            <textarea id="observaciones" class="form-control" rows="2" maxlength="300"
                       placeholder="Opcional..."
                       style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px; resize:none;"></textarea>
+        </div>
+
+        <!-- Firma Digital -->
+        <div class="col-12">
+            <label class="form-label fw-600"
+                   style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                Firma del Solicitante <span class="text-danger">*</span>
+            </label>
+            <div class="p-2 border rounded-3 bg-white" style="border-color:#e2e8f0 !important;">
+                <canvas id="signature-pad" class="w-100" style="height: 180px; touch-action: none; cursor: crosshair;"></canvas>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Firme sobre el recuadro blanco</small>
+                <button type="button" id="btnClearSignature" class="btn btn-sm btn-link text-danger text-decoration-none p-0">
+                    <i class="bi bi-eraser me-1"></i>Limpiar Firma
+                </button>
+            </div>
         </div>
 
         <!-- Botones -->
@@ -97,7 +114,27 @@
 </div>
 
 @section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
+    const canvas = document.getElementById('signature-pad');
+    const signaturePad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)'
+    });
+
+    // Ajustar el tamaño del canvas
+    function resizeCanvas() {
+        const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+        signaturePad.clear();
+    }
+    window.onresize = resizeCanvas;
+    resizeCanvas();
+
+    document.getElementById('btnClearSignature').addEventListener('click', () => signaturePad.clear());
+
     async function registrarPrestamo() {
         const idLlave    = parseInt(document.getElementById('idLlave').value);
         const idPersona  = parseInt(document.getElementById('idPersona').value);
@@ -106,9 +143,11 @@
 
         if (!idLlave)   return mostrarAlert('Debe seleccionar una llave.', false);
         if (!idPersona) return mostrarAlert('Debe seleccionar una persona.', false);
+        
+        if (signaturePad.isEmpty()) {
+            return mostrarAlert('La firma del solicitante es obligatoria.', false);
+        }
 
-        // Obtener IdUsuario del operador actual desde el claim (cookie)
-        // Como fallback usamos 1; en producción leer desde un endpoint o meta tag
         const idUsuario = parseInt(document.querySelector('meta[name="uid"]')?.content ?? '0') || 1;
 
         const payload = {
@@ -116,7 +155,8 @@
             idPersona,
             idUsuario,
             fechaHoraDevolucionEsperada: fechaRaw ? new Date(fechaRaw).toISOString() : null,
-            observaciones: obs || null
+            observaciones: obs || null,
+            firmaBase64: signaturePad.toDataURL("image/png")
         };
 
         const btn = document.getElementById('btnGuardar');

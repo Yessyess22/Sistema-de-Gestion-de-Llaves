@@ -56,7 +56,6 @@ public class LlavesViewController : Controller
 
         var llave = await _context.Llaves
             .Include(l => l.Ambiente).ThenInclude(a => a.TipoAmbiente)
-            .Include(l => l.PersonasAutorizadas).ThenInclude(pa => pa.Persona)
             .FirstOrDefaultAsync(l => l.IdLlave == id);
 
         if (llave == null) return NotFound();

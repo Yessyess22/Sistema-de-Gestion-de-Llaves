@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionLlaves.Models;
 
@@ -17,25 +19,106 @@ public class ApplicationDbContext : DbContext
     // -------------------------------------------------------
     public DbSet<Persona> Personas => Set<Persona>();
     public DbSet<Rol> Roles => Set<Rol>();
-    public DbSet<Permiso> Permisos => Set<Permiso>();
-    public DbSet<RolPermiso> RolPermisos => Set<RolPermiso>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<TipoAmbiente> TiposAmbiente => Set<TipoAmbiente>();
     public DbSet<Ambiente> Ambientes => Set<Ambiente>();
     public DbSet<Llave> Llaves => Set<Llave>();
-    public DbSet<PersonaAutorizada> PersonasAutorizadas => Set<PersonaAutorizada>();
     public DbSet<Prestamo> Prestamos => Set<Prestamo>();
     public DbSet<Reserva> Reservas => Set<Reserva>();
-    public DbSet<Auditoria> Auditorias => Set<Auditoria>();
-    public DbSet<IntentoAcceso> IntentosAcceso => Set<IntentoAcceso>();
-    public DbSet<AlertaNotificacion> AlertasNotificaciones => Set<AlertaNotificacion>();
+    public DbSet<Auditoria> AuditoriaLog => Set<Auditoria>();
+    public DbSet<Incidencia> Incidencias => Set<Incidencia>();
 
-    // -------------------------------------------------------
-    // Fluent API
-    // -------------------------------------------------------
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var auditEntries = OnBeforeSaveChanges();
+        var result = await base.SaveChangesAsync(cancellationToken);
+        await OnAfterSaveChanges(auditEntries);
+        return result;
+    }
+
+    private List<AuditEntry> OnBeforeSaveChanges()
+    {
+        ChangeTracker.DetectChanges();
+        var auditEntries = new List<AuditEntry>();
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is Auditoria || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                continue;
+
+            var auditEntry = new AuditEntry(entry);
+            auditEntry.TableName = entry.Entity.GetType().Name;
+            // auditEntry.UserId = ... (Se podría pasar desde el exterior si se inyecta IHttpContextAccessor)
+            auditEntries.Add(auditEntry);
+
+            foreach (var property in entry.Properties)
+            {
+                string propertyName = property.Metadata.Name;
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    auditEntry.KeyValues[propertyName] = property.CurrentValue;
+                    continue;
+                }
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        auditEntry.Action = "Create";
+                        auditEntry.NewValues[propertyName] = property.CurrentValue;
+                        break;
+
+                    case EntityState.Deleted:
+                        auditEntry.Action = "Delete";
+                        auditEntry.OldValues[propertyName] = property.OriginalValue;
+                        break;
+
+                    case EntityState.Modified:
+                        if (property.IsModified)
+                        {
+                            auditEntry.ChangedColumns.Add(propertyName);
+                            auditEntry.Action = "Update";
+                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                        }
+                        break;
+                }
+            }
+        }
+
+        foreach (var auditEntry in auditEntries)
+        {
+            AuditoriaLog.Add(auditEntry.ToAudit());
+        }
+
+        return auditEntries;
+    }
+
+    private Task OnAfterSaveChanges(List<AuditEntry> auditEntries)
+    {
+        // Si quisiéramos manejar IDs temporales (que se generan al guardar), 
+        // aquí es donde actualizaríamos el PrimaryKey del log.
+        return Task.CompletedTask;
+    }
+
+    // ── Fluent API ──
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // ── Auditoria ────────────────────────────────────────
+        modelBuilder.Entity<Auditoria>(e =>
+        {
+            e.ToTable("Auditoria");
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).HasColumnName("id").UseIdentityByDefaultColumn();
+            e.Property(a => a.UserId).HasColumnName("user_id").HasMaxLength(150);
+            e.Property(a => a.Type).HasColumnName("tipo_accion").HasMaxLength(50);
+            e.Property(a => a.TableName).HasColumnName("tabla").HasMaxLength(150);
+            e.Property(a => a.DateTime).HasColumnName("fecha_hora");
+            e.Property(a => a.OldValues).HasColumnName("valores_anteriores").HasColumnType("text");
+            e.Property(a => a.NewValues).HasColumnName("valores_nuevos").HasColumnType("text");
+            e.Property(a => a.AffectedColumns).HasColumnName("columnas_afectadas").HasColumnType("text");
+            e.Property(a => a.PrimaryKey).HasColumnName("llave_primaria").HasMaxLength(250);
+        });
 
         // ── Persona ──────────────────────────────────────────
         modelBuilder.Entity<Persona>(e =>
@@ -65,36 +148,6 @@ public class ApplicationDbContext : DbContext
             e.Property(r => r.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
             e.Property(r => r.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
             e.HasIndex(r => r.NombreRol).IsUnique().HasDatabaseName("UQ_Rol_Nombre");
-        });
-
-        // ── Permiso ──────────────────────────────────────────
-        modelBuilder.Entity<Permiso>(e =>
-        {
-            e.ToTable("Permisos");
-            e.HasKey(p => p.IdPermiso);
-            e.Property(p => p.IdPermiso).HasColumnName("id_permiso").UseIdentityByDefaultColumn();
-            e.Property(p => p.NombrePermiso).HasColumnName("nombre_permiso").HasMaxLength(100).IsRequired();
-            e.Property(p => p.Descripcion).HasColumnName("descripcion").HasMaxLength(250);
-            e.HasIndex(p => p.NombrePermiso).IsUnique().HasDatabaseName("UQ_Permiso_Nombre");
-        });
-
-        // ── RolPermiso (tabla intermedia) ────────────────────
-        modelBuilder.Entity<RolPermiso>(e =>
-        {
-            e.ToTable("RolPermisos");
-            e.HasKey(rp => new { rp.IdRol, rp.IdPermiso });
-            e.Property(rp => rp.IdRol).HasColumnName("id_rol");
-            e.Property(rp => rp.IdPermiso).HasColumnName("id_permiso");
-
-            e.HasOne(rp => rp.Rol)
-             .WithMany(r => r.RolPermisos)
-             .HasForeignKey(rp => rp.IdRol)
-             .OnDelete(DeleteBehavior.Cascade);
-
-            e.HasOne(rp => rp.Permiso)
-             .WithMany(p => p.RolPermisos)
-             .HasForeignKey(rp => rp.IdPermiso)
-             .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Usuario ──────────────────────────────────────────
@@ -172,27 +225,6 @@ public class ApplicationDbContext : DbContext
              .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ── PersonaAutorizada ─────────────────────────────────
-        modelBuilder.Entity<PersonaAutorizada>(e =>
-        {
-            e.ToTable("Persona_Autorizada");
-            e.HasKey(pa => pa.Id);
-            e.Property(pa => pa.Id).HasColumnName("id").UseIdentityByDefaultColumn();
-            e.Property(pa => pa.IdPersona).HasColumnName("id_persona");
-            e.Property(pa => pa.IdLlave).HasColumnName("id_llave");
-            e.HasIndex(pa => new { pa.IdPersona, pa.IdLlave }).IsUnique()
-             .HasDatabaseName("UQ_PersonaAutorizada_PersonaLlave");
-
-            e.HasOne(pa => pa.Persona)
-             .WithMany(p => p.PersonasAutorizadas)
-             .HasForeignKey(pa => pa.IdPersona)
-             .OnDelete(DeleteBehavior.Cascade);
-
-            e.HasOne(pa => pa.Llave)
-             .WithMany(l => l.PersonasAutorizadas)
-             .HasForeignKey(pa => pa.IdLlave)
-             .OnDelete(DeleteBehavior.Cascade);
-        });
 
         // ── Prestamo ─────────────────────────────────────────
         modelBuilder.Entity<Prestamo>(e =>
@@ -208,6 +240,7 @@ public class ApplicationDbContext : DbContext
             e.Property(p => p.FechaHoraDevolucionReal).HasColumnName("fecha_hora_devolucion_real");
             e.Property(p => p.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
             e.Property(p => p.Observaciones).HasColumnName("observaciones").HasMaxLength(300);
+            e.Property(p => p.FirmaBase64).HasColumnName("firma_base64").HasColumnType("text");
             e.HasIndex(p => p.Estado).HasDatabaseName("IX_Prestamo_Estado");
             e.HasIndex(p => p.FechaHoraPrestamo).HasDatabaseName("IX_Prestamo_Fecha");
 
@@ -257,64 +290,24 @@ public class ApplicationDbContext : DbContext
              .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ── Auditoria ────────────────────────────────────────
-        modelBuilder.Entity<Auditoria>(e =>
+        // ── Incidencia ──────────────────────────────────────
+        modelBuilder.Entity<Incidencia>(e =>
         {
-            e.ToTable("Auditoria");
-            e.HasKey(a => a.IdAuditoria);
-            e.Property(a => a.IdAuditoria).HasColumnName("id_auditoria").UseIdentityByDefaultColumn();
-            e.Property(a => a.TablaAfectada).HasColumnName("tabla_afectada").HasMaxLength(100).IsRequired();
-            e.Property(a => a.Operacion).HasColumnName("operacion").HasMaxLength(20).IsRequired();
-            e.Property(a => a.IdRegistro).HasColumnName("id_registro");
-            e.Property(a => a.IdUsuario).HasColumnName("id_usuario");
-            e.Property(a => a.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("NOW()");
-            e.Property(a => a.DatosAnteriores).HasColumnName("datos_anteriores").HasColumnType("text");
-            e.Property(a => a.DatosNuevos).HasColumnName("datos_nuevos").HasColumnType("text");
-            e.HasIndex(a => a.FechaHora).HasDatabaseName("IX_Auditoria_Fecha");
-            e.HasIndex(a => a.TablaAfectada).HasDatabaseName("IX_Auditoria_Tabla");
+            e.ToTable("Incidencia");
+            e.HasKey(i => i.IdIncidencia);
+            e.Property(i => i.IdIncidencia).HasColumnName("id_incidencia").UseIdentityByDefaultColumn();
+            e.Property(i => i.IdLlave).HasColumnName("id_llave");
+            e.Property(i => i.TipoIncidencia).HasColumnName("tipo_incidencia").HasMaxLength(50).IsRequired();
+            e.Property(i => i.Descripcion).HasColumnName("descripcion").HasMaxLength(500).IsRequired();
+            e.Property(i => i.FechaReporte).HasColumnName("fecha_reporte").HasDefaultValueSql("NOW()");
+            e.Property(i => i.FechaResolucion).HasColumnName("fecha_resolucion");
+            e.Property(i => i.Estado).HasColumnName("estado").HasMaxLength(1).IsRequired().HasDefaultValue("A");
+            e.Property(i => i.NotasResolucion).HasColumnName("notas_resolucion").HasMaxLength(200);
 
-            e.HasOne(a => a.Usuario)
-             .WithMany(u => u.Auditorias)
-             .HasForeignKey(a => a.IdUsuario)
-             .OnDelete(DeleteBehavior.SetNull);
-        });
-
-        // ── IntentoAcceso ────────────────────────────────────
-        modelBuilder.Entity<IntentoAcceso>(e =>
-        {
-            e.ToTable("IntentoAcceso");
-            e.HasKey(i => i.IdIntento);
-            e.Property(i => i.IdIntento).HasColumnName("id_intento").UseIdentityByDefaultColumn();
-            e.Property(i => i.NombreUsuario).HasColumnName("nombre_usuario").HasMaxLength(80).IsRequired();
-            e.Property(i => i.FechaHora).HasColumnName("fecha_hora").HasDefaultValueSql("NOW()");
-            e.Property(i => i.Ip).HasColumnName("ip").HasMaxLength(50);
-            e.Property(i => i.Exitoso).HasColumnName("exitoso").HasDefaultValue(false);
-            e.HasIndex(i => i.FechaHora).HasDatabaseName("IX_IntentoAcceso_Fecha");
-        });
-
-        // ── AlertaNotificacion ───────────────────────────────
-        modelBuilder.Entity<AlertaNotificacion>(e =>
-        {
-            e.ToTable("AlertaNotificacion");
-            e.HasKey(a => a.IdAlerta);
-            e.Property(a => a.IdAlerta).HasColumnName("id_alerta").UseIdentityByDefaultColumn();
-            e.Property(a => a.TipoAlerta).HasColumnName("tipo_alerta").HasMaxLength(50).IsRequired();
-            e.Property(a => a.IdPrestamo).HasColumnName("id_prestamo");
-            e.Property(a => a.IdLlave).HasColumnName("id_llave");
-            e.Property(a => a.Mensaje).HasColumnName("mensaje").HasMaxLength(500).IsRequired();
-            e.Property(a => a.FechaGenerada).HasColumnName("fecha_generada").HasDefaultValueSql("NOW()");
-            e.Property(a => a.Leida).HasColumnName("leida").HasDefaultValue(false);
-            e.HasIndex(a => a.Leida).HasDatabaseName("IX_Alerta_Leida");
-
-            e.HasOne(a => a.Prestamo)
-             .WithMany(p => p.Alertas)
-             .HasForeignKey(a => a.IdPrestamo)
-             .OnDelete(DeleteBehavior.SetNull);
-
-            e.HasOne(a => a.Llave)
-             .WithMany(l => l.Alertas)
-             .HasForeignKey(a => a.IdLlave)
-             .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(i => i.Llave)
+             .WithMany(l => l.Incidencias)
+             .HasForeignKey(i => i.IdLlave)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

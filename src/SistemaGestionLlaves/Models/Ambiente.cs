@@ -9,19 +9,24 @@ public class Ambiente
 {
     public int IdAmbiente { get; set; }
 
-    [Required, MaxLength(20)]
+    [Required(ErrorMessage = "El código es obligatorio")]
+    [MaxLength(20, ErrorMessage = "El código no puede exceder los 20 caracteres")]
     public string Codigo { get; set; } = string.Empty;
 
-    [Required, MaxLength(150)]
+    [Required(ErrorMessage = "El nombre del ambiente es obligatorio")]
+    [MaxLength(150, ErrorMessage = "El nombre no puede exceder los 150 caracteres")]
     public string Nombre { get; set; } = string.Empty;
 
-    [MaxLength(200)]
+    [MaxLength(200, ErrorMessage = "La ubicación no puede exceder los 200 caracteres")]
     public string? Ubicacion { get; set; }
 
+    [Required(ErrorMessage = "El tipo de ambiente es obligatorio")]
     public int IdTipo { get; set; }
 
     /// <summary>Estado: A=Activo, I=Inactivo</summary>
-    [Required, MaxLength(1)]
+    [Required]
+    [MaxLength(1)]
+    [RegularExpression("^[AI]$")]
     public string Estado { get; set; } = "A";
 
     // Navegación

@@ -1,0 +1,117 @@
+@{
+    ViewData["Title"] = "Escáner QR";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-0">Escáner de Llaves QR</h2>
+    <p class="text-muted">Apunta tu cámara al código QR de la llave para abrir acciones rápidas</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="ui-card text-center p-4">
+            <div id="reader" style="width: 100%; min-height: 300px; border-radius: 15px; overflow: hidden; background: #f8fafc; border: 2px dashed #e2e8f0;"></div>
+            
+            <div id="result-container" class="mt-4 d-none">
+                <div class="p-3 rounded-3 mb-3" id="result-status">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span id="status-text">Procesando código...</span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button id="btn-restart" class="btn btn-outline-primary rounded-pill d-none">
+                    <i class="bi bi-camera me-2"></i>Escanear Otra Llave
+                </button>
+                <a asp-controller="LlavesView" asp-action="Index" class="btn btn-outline-secondary rounded-pill ms-2">
+                    <i class="bi bi-list me-2"></i>Volver a Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        const reader = document.getElementById('reader');
+        const resultContainer = document.getElementById('result-container');
+        const statusText = document.getElementById('status-text');
+        const btnRestart = document.getElementById('btn-restart');
+        const resultStatus = document.getElementById('result-status');
+
+        const config = { 
+            fps: 15, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+        };
+
+        let scannerActive = false;
+
+        async function startScanner() {
+            try {
+                if (scannerActive) await html5QrCode.stop();
+                
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                scannerActive = true;
+                reader.classList.remove('d-none');
+                resultContainer.classList.add('d-none');
+                btnRestart.classList.add('d-none');
+            } catch (err) {
+                console.error("No se pudo iniciar el escáner:", err);
+                statusText.innerText = "Error al acceder a la cámara. Asegúrate de dar permisos.";
+                resultContainer.classList.remove('d-none');
+            }
+        }
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            console.log(`Code scanned = ${decodedText}`);
+            
+            try {
+                // Pausar el escáner
+                await html5QrCode.stop();
+                scannerActive = false;
+                
+                // Mostrar estado
+                reader.classList.add('d-none');
+                resultContainer.classList.remove('d-none');
+                btnRestart.classList.remove('d-none');
+                
+                statusText.innerText = "Validando código: " + decodedText;
+
+                const response = await fetch(`/CodigosQR/ProcesarEscaneo?codigo=${encodeURIComponent(decodedText.trim())}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    resultStatus.className = "p-3 rounded-3 mb-3 bg-success bg-opacity-10 text-success fw-bold";
+                    statusText.innerText = "Llave identificada. Redirigiendo...";
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl;
+                    }, 800);
+                } else {
+                    resultStatus.className = "p-3 rounded-3 mb-3 bg-danger bg-opacity-10 text-danger fw-bold";
+                    statusText.innerText = "Error: " + data.message;
+                }
+            } catch (error) {
+                console.error("Error al procesar:", error);
+                resultStatus.className = "p-3 rounded-3 mb-3 bg-danger bg-opacity-10 text-danger fw-bold";
+                statusText.innerText = "Error de comunicación con el servidor.";
+            }
+        }
+
+        function onScanFailure(error) {
+            // Ignorar errores de lectura continua
+        }
+
+        btnRestart.addEventListener('click', startScanner);
+
+        // Iniciar al cargar
+        window.addEventListener('load', startScanner);
+    </script>
+}

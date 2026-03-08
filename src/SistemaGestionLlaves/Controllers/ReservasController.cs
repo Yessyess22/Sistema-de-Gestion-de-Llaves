@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionLlaves.Data;
 
+namespace SistemaGestionLlaves.Controllers;
+
 public class ReservasController : Controller
 {
     private readonly ApplicationDbContext _context;

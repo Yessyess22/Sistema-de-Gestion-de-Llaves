@@ -4,73 +4,109 @@
     ViewData["Title"] = "Detalle de Persona";
 }
 
-<h2 class="mb-4">Detalle de Persona</h2>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none d-inline-flex align-items-center gap-1 mb-2" style="color: #64748b; font-weight: 500; font-size: 0.9rem;">
+        <i class="bi bi-arrow-left"></i> Volver al listado
+    </a>
+    <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem;">
+        <i class="bi bi-person-badge me-2" style="color:#0369a1;"></i>Detalles de la Persona
+    </h2>
+</div>
 
-<div class="card shadow">
-    <div class="card-body">
-
-        <dl class="row">
-            <dt class="col-sm-3">Nombres</dt>
-            <dd class="col-sm-9">@Model.Nombres</dd>
-
-            <dt class="col-sm-3">Apellidos</dt>
-            <dd class="col-sm-9">@Model.Apellidos</dd>
-
-            <dt class="col-sm-3">CI</dt>
-            <dd class="col-sm-9">@Model.Ci</dd>
-
-            <dt class="col-sm-3">Fecha de Nacimiento</dt>
-            <dd class="col-sm-9">
-                @(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrado")
-            </dd>
-
-            <dt class="col-sm-3">Género</dt>
-            <dd class="col-sm-9">
-                @if (Model.Genero == "M")
+<div class="row">
+    <div class="col-md-5">
+        <div class="ui-card text-center py-5 mb-4">
+            <div class="mx-auto mb-3" style="width:100px; height:100px; background:#e0f2fe; border-radius:30px; display:flex; align-items:center; justify-content:center; color:#0369a1; font-size: 3rem;">
+                <i class="bi bi-person"></i>
+            </div>
+            <h3 class="fw-bold mb-1" style="color:#0f172a;">@Model.Nombres @Model.Apellidos</h3>
+            <p class="text-uppercase mb-3" style="color:#64748b; font-size:0.75rem; font-weight: 700; letter-spacing: 0.05em;">Persona Registrada</p>
+            
+            @{
+                var (bg, fg, label, icon) = Model.Estado switch
                 {
-                    <span>Masculino</span>
-                }
-                else if (Model.Genero == "F")
-                {
-                    <span>Femenino</span>
-                }
-                else if (Model.Genero == "O")
-                {
-                    <span>Otro</span>
-                }
-                else
-                {
-                    <span>No especificado</span>
-                }
-            </dd>
-
-            <dt class="col-sm-3">Correo</dt>
-            <dd class="col-sm-9">@Model.Correo</dd>
-
-            <dt class="col-sm-3">Celular</dt>
-            <dd class="col-sm-9">@Model.Celular</dd>
-
-            <dt class="col-sm-3">Estado</dt>
-            <dd class="col-sm-9">
-                @if (Model.Estado == "A")
-                {
-                    <span class="badge bg-success">Activo</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">Inactivo</span>
-                }
-            </dd>
-        </dl>
-
-        <div class="mt-3">
-            <a asp-action="Edit" asp-route-id="@Model.IdPersona" class="btn btn-warning">
-                Editar
-            </a>
-            <a asp-action="Index" class="btn btn-secondary">
-                Volver
-            </a>
+                    "A" => ("#dcfce7", "#166534", "Activo", "check-circle"),
+                    _ => ("#f1f5f9", "#64748b", "Inactivo", "x-circle")
+                };
+            }
+            <span class="status-badge" style="background:@bg; color:@fg; font-size: 0.85rem; padding: 6px 16px;">
+                <i class="bi bi-@icon me-1"></i>@label
+            </span>
         </div>
 
+        <div class="ui-card">
+            <h5 class="fw-bold mb-4" style="color:#0f172a; font-size: 1rem;">Acciones Rápidas</h5>
+            <div class="d-grid gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.IdPersona" class="btn d-flex align-items-center justify-content-center gap-2 py-2" 
+                   style="background:#0369a1; border-color:#0369a1; color:white; border-radius:10px; font-weight:600;">
+                    <i class="bi bi-pencil-square"></i> Editar Información
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.IdPersona" class="btn d-flex align-items-center justify-content-center gap-2 py-2" 
+                   style="background:#fee2e2; color:#b91c1c; border:none; border-radius:10px; font-weight:600;">
+                    <i class="bi bi-trash"></i> Eliminar Registro
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="ui-card h-100">
+            <h5 class="fw-bold mb-4 border-bottom pb-2" style="color:#0f172a; font-size: 1.1rem;">Información Personal</h5>
+            
+            <div class="row mb-4">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Nombres</label>
+                    <div class="fw-semibold" style="color: #334155;">@Model.Nombres</div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Apellidos</label>
+                    <div class="fw-semibold" style="color: #334155;">@Model.Apellidos</div>
+                </div>
+            </div>
+
+            <div class="row mb-4 border-top pt-4">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Cédula de Identidad (CI)</label>
+                    <div class="fw-semibold" style="color: #334155;"><i class="bi bi-card-text me-2" style="color: #94a3b8;"></i>@Model.Ci</div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Fecha de Nacimiento</label>
+                    <div class="fw-semibold" style="color: #334155;">
+                        <i class="bi bi-calendar-event me-2" style="color: #94a3b8;"></i>
+                        @(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrado")
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4 border-top pt-4">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Género</label>
+                    <div class="fw-semibold" style="color: #334155;">
+                        @{
+                            var genderIcon = Model.Genero == "M" ? "gender-male" : Model.Genero == "F" ? "gender-female" : "gender-ambiguous";
+                            var genderLabel = Model.Genero == "M" ? "Masculino" : Model.Genero == "F" ? "Femenino" : Model.Genero == "O" ? "Otro" : "No especificado";
+                        }
+                        <i class="bi bi-@genderIcon me-2" style="color: #94a3b8;"></i>@genderLabel
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-4 border-bottom pb-2 mt-4" style="color:#0f172a; font-size: 1.1rem;">Información de Contacto</h5>
+            
+            <div class="row mb-2">
+                <div class="col-sm-12 mb-4">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Correo Electrónico</label>
+                    <div class="fw-semibold" style="color: #0369a1;">
+                        <i class="bi bi-envelope-fill me-2" style="color: #94a3b8;"></i>@Model.Correo
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Celular / Teléfono</label>
+                    <div class="fw-semibold" style="color: #334155;">
+                        <i class="bi bi-phone-fill me-2" style="color: #94a3b8;"></i>@Model.Celular
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

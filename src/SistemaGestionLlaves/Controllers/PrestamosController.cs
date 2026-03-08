@@ -21,9 +21,10 @@ public class PrestamosController : Controller
     // GET: /PrestamosView
     public IActionResult Index() => View();
 
-    // GET: /PrestamosView/Crear
-    public async Task<IActionResult> Crear()
+    // GET: /Prestamos/Crear
+    public async Task<IActionResult> Crear(int? idLlave)
     {
+        ViewData["SelectedIdLlave"] = idLlave;
         ViewData["Personas"] = new SelectList(
             await _context.Personas
                 .Where(p => p.Estado == "A")

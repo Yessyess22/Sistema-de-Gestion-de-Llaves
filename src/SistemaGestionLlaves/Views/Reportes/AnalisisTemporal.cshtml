@@ -1,0 +1,129 @@
+@{
+    ViewData["Title"] = "Análisis Temporal";
+    ViewData["HideTopSubtitle"] = true;
+    ViewData["HideTopHeader"] = true;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-graph-up-arrow me-2" style="color:#0369a1;"></i>Análisis de Tendencia y Uso Temporal
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Visualiza los picos de demanda y el comportamiento histórico de préstamos.</p>
+    </div>
+    <a asp-controller="Reportes" asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; border:none; font-weight:600;">
+        <i class="bi bi-arrow-left me-1"></i> Volver a Reportes
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="ui-card h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="card-title mb-0">Tendencia Mensual (Préstamos)</h3>
+                <span style="color:#94a3b8; font-size:0.8rem;">Últimos 12 meses</span>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="mensualChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ui-card h-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="card-title mb-0">Actividad por Día</h3>
+                <button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="cargarDia()" style="font-size:0.8rem; color:#0369a1;">Ver Histórico</button>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="diaChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let mensualChart, diaChart;
+
+    async function cargarGraficos() {
+        try {
+            // Cargar Mensual
+            const resM = await fetch('/Reportes/AnalisisTemporalData?basePeriodo=mensual');
+            if (!resM.ok) throw new Error('Error al cargar tendencia mensual');
+            const jsonM = await resM.json();
+            renderMensual(jsonM.data);
+
+            // Cargar por Día
+            const resD = await fetch('/Reportes/AnalisisTemporalData?basePeriodo=dia');
+            if (!resD.ok) throw new Error('Error al cargar actividad por día');
+            const jsonD = await resD.json();
+            renderDia(jsonD.data);
+        } catch (error) {
+            console.error('Error al cargar gráficos:', error);
+            alert('No se pudieron cargar algunas estadísticas. Por favor intenta de nuevo más tarde.');
+        }
+    }
+
+    function renderMensual(data) {
+        const ctx = document.getElementById('mensualChart');
+        if (mensualChart) mensualChart.destroy();
+
+        mensualChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(x => x.etiqueta),
+                datasets: [{
+                    label: 'Cantidad de Préstamos',
+                    data: data.map(x => x.cantidad),
+                    borderColor: '#0369a1',
+                    backgroundColor: 'rgba(3, 105, 161, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    }
+
+    function renderDia(data) {
+        const ctx = document.getElementById('diaChart');
+        if (diaChart) diaChart.destroy();
+
+        diaChart = new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: data.map(x => x.etiqueta),
+                datasets: [{
+                    data: data.map(x => x.cantidad),
+                    backgroundColor: [
+                        'rgba(3, 105, 161, 0.7)',
+                        'rgba(14, 165, 233, 0.7)',
+                        'rgba(56, 189, 248, 0.7)',
+                        'rgba(125, 211, 252, 0.7)',
+                        'rgba(186, 230, 253, 0.7)',
+                        'rgba(7, 89, 133, 0.7)',
+                        'rgba(12, 74, 110, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarGraficos);
+</script>
+}

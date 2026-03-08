@@ -4,57 +4,115 @@
     ViewData["Title"] = "Personas";
 }
 
-<h2 class="mb-4">Listado de Personas</h2>
-
-<div class="row mb-3">
-    <div class="col-md-6">
-        <form method="get">
-            <div class="input-group">
-                <input type="text" name="buscar" class="form-control" placeholder="Buscar por nombre, apellido o CI..." />
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </div>
-        </form>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-people me-2" style="color:#0369a1;"></i>Gestión de Personas
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Administra el personal autorizado y usuarios.</p>
     </div>
-    <div class="col-md-6 text-end">
-        <a asp-action="Create" class="btn btn-success">Nueva Persona</a>
-    </div>
+    <a asp-action="Create" class="btn d-flex align-items-center gap-2 px-4 py-2"
+       style="background:#0369a1; border-color:#0369a1; color:white; border-radius:12px; font-weight:600;">
+        <i class="bi bi-plus-lg"></i> Nueva Persona
+    </a>
 </div>
 
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Nombre Completo</th>
-            <th>CI</th>
-            <th>Correo</th>
-            <th>Celular</th>
-            <th>Estado</th>
-            <th style="width: 180px;">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model)
-{
-        <tr>
-            <td>@item.NombreCompleto</td>
-            <td>@item.Ci</td>
-            <td>@item.Correo</td>
-            <td>@item.Celular</td>
-            <td>
-                @if (item.Estado == "A")
-                {
-                    <span class="badge bg-success">Activo</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">Inactivo</span>
-                }
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.IdPersona" class="btn btn-info btn-sm">Ver</a>
-                <a asp-action="Edit" asp-route-id="@item.IdPersona" class="btn btn-warning btn-sm">Editar</a>
-                <a asp-action="Delete" asp-route-id="@item.IdPersona" class="btn btn-danger btn-sm">Eliminar</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="ui-card">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <form method="get" class="d-flex gap-2">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text bg-white border-end-0" style="border-radius: 10px 0 0 10px; color: #94a3b8;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="buscar" class="form-control border-start-0" 
+                           placeholder="Buscar por nombre o CI..." 
+                           style="border-radius: 0 10px 10px 0; font-size: 0.9rem;"
+                           value="@ViewContext.HttpContext.Request.Query["buscar"]" />
+                </div>
+                <button type="submit" class="btn btn-light" style="border-radius: 10px; color: #0369a1; font-weight: 600;">Filtrar</button>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            <span style="color:#94a3b8; font-size:0.85rem;">@Model.Count() persona(s) encontrada(s)</span>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5" style="color:#94a3b8;">
+            <i class="bi bi-person-exclamation" style="font-size:3rem; display:block; margin-bottom:12px;"></i>
+            <p class="mb-0">No se encontraron personas con los criterios de búsqueda.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Identificación</th>
+                        <th>Contacto</th>
+                        <th>Estado</th>
+                        <th style="text-align:right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:36px; height:36px; background:#e0f2fe; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#0369a1;">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <span class="fw-bold" style="color:#0f172a;">@item.NombreCompleto</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="color:#334155; font-weight: 500;">@item.Ci</div>
+                                <div style="font-size:0.7rem; color:#64748b;">Cédula de Identidad</div>
+                            </td>
+                            <td>
+                                <div style="font-size:0.85rem; color:#0369a1;"><i class="bi bi-envelope me-1"></i>@item.Correo</div>
+                                <div style="font-size:0.85rem; color:#64748b;"><i class="bi bi-phone me-1"></i>@item.Celular</div>
+                            </td>
+                            <td>
+                                @{
+                                    var (bg, fg, label, icon) = item.Estado switch
+                                    {
+                                        "A" => ("#dcfce7", "#166534", "Activo", "check-circle"),
+                                        _ => ("#f1f5f9", "#64748b", "Inactivo", "x-circle")
+                                    };
+                                }
+                                <span class="status-badge" style="background:@bg; color:@fg;">
+                                    <i class="bi bi-@icon me-1"></i>@label
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a asp-action="Details" asp-route-id="@item.IdPersona"
+                                       class="btn btn-sm" title="Ver detalles"
+                                       style="background:#f1f5f9; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.IdPersona"
+                                       class="btn btn-sm" title="Editar"
+                                       style="background:#e0f2fe; color:#0369a1; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdPersona"
+                                       class="btn btn-sm text-danger" title="Eliminar"
+                                       style="background:#fee2e2; border-radius:8px; border:none; padding:6px 10px;">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

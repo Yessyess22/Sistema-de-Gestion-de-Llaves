@@ -1,0 +1,172 @@
+@model IEnumerable<SistemaGestionLlaves.Models.Incidencia>
+@{
+    ViewData["Title"] = "Gestión de Incidencias";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestión de Incidencias</h2>
+        <p class="text-muted">Reporte y seguimiento de llaves o cerraduras dañadas</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalNueva">
+        <i class="bi bi-plus-circle me-2"></i>Reportar Incidencia
+    </button>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Listado de Incidencias -->
+    <div class="col-12">
+        <div class="ui-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th>Reportado</th>
+                            <th>Llave / Ambiente</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">No hay incidencias registradas.</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@item.FechaReporte.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@item.FechaReporte.ToLocalTime().ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary p-2 rounded me-3">
+                                            <i class="bi bi-key-fill"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">@item.Llave.Codigo</div>
+                                            <small class="text-muted">@(item.Llave.Ambiente?.Nombre ?? "Sin Ambiente")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-dark">@item.TipoIncidencia</span>
+                                    <br />
+                                    <small class="text-muted d-block text-truncate" style="max-width: 200px;">@item.Descripcion</small>
+                                </td>
+                                <td>
+                                    @if (item.Estado == "A")
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-3">ABIERTA (BLOQUEADA)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3">RESUELTA</span>
+                                        <br />
+                                        <small class="text-muted">@item.FechaResolucion?.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-light" title="Ver detalles" data-bs-toggle="modal" data-bs-target="#modalVer-@item.IdIncidencia">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        @if (item.Estado == "A")
+                                        {
+                                            <button class="btn btn-outline-success" title="Resolver" data-bs-toggle="modal" data-bs-target="#modalResolver-@item.IdIncidencia">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <!-- Modal Resolver -->
+                                    <div class="modal fade" id="modalResolver-@item.IdIncidencia" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <form asp-action="Resolver" method="post">
+                                                    <input type="hidden" name="id" value="@item.IdIncidencia" />
+                                                    <div class="modal-header border-0 bg-light">
+                                                        <h5 class="modal-title fw-bold">Resolver Incidencia</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Notas de Resolución</label>
+                                                            <textarea name="notas" class="form-control" rows="3" required placeholder="Describe cómo se solucionó el problema..."></textarea>
+                                                        </div>
+                                                        <div class="alert alert-info py-2 small border-0">
+                                                            <i class="bi bi-info-circle-fill me-2"></i> Al resolver esta incidencia, la llave volverá a estar disponible para préstamos.
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-success rounded-pill px-4">Marcar como Resuelta</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Incidencia -->
+<div class="modal fade" id="modalNueva" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form asp-action="Registrar" method="post">
+                <div class="modal-header border-0 bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Reportar Daño o Incidencia</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Seleccionar Llave</label>
+                        <select name="IdLlave" class="form-select" asp-items="ViewBag.Llaves" required>
+                            <option value="">-- Seleccionar Llave --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tipo de Incidencia</label>
+                        <select name="TipoIncidencia" class="form-select" required>
+                            <option value="Llave Dañada">Llave Dañada / Doblada</option>
+                            <option value="Cerradura Dañada">Cerradura Dañada</option>
+                            <option value="Extravío">Extravío</option>
+                            <option value="Mantenimiento Preventivo">Mantenimiento Preventivo</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción del Problema</label>
+                        <textarea name="Descripcion" class="form-control" rows="4" required placeholder="Explica detalladamente qué sucede..."></textarea>
+                    </div>
+                    <div class="alert alert-warning py-2 small border-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Esta acción <strong>BLOQUEARÁ</strong> la llave automáticamente.
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Reporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

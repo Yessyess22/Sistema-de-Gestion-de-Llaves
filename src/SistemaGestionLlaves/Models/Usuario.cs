@@ -12,18 +12,28 @@ public class Usuario
     public int IdPersona { get; set; }
     public int IdRol { get; set; }
 
-    [Required, MaxLength(80)]
+    [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
+    [StringLength(80, MinimumLength = 4, ErrorMessage = "El nombre de usuario debe tener entre 4 y 80 caracteres")]
+    [Display(Name = "Nombre de Usuario")]
     public string NombreUsuario { get; set; } = string.Empty;
 
     /// <summary>Hash BCrypt de la contraseña. NUNCA texto plano.</summary>
-    [Required, MaxLength(200)]
+    [Required(ErrorMessage = "La contraseña es obligatoria")]
+    [MaxLength(200)]
     public string PasswordHash { get; set; } = string.Empty;
 
+    [DataType(DataType.DateTime)]
+    [Display(Name = "Fecha de Inicio")]
     public DateTime? FechaInicio { get; set; }
+
+    [DataType(DataType.DateTime)]
+    [Display(Name = "Fecha de Fin")]
     public DateTime? FechaFin { get; set; }
 
     /// <summary>Estado: A=Activo, I=Inactivo, B=Bloqueado</summary>
-    [Required, MaxLength(1)]
+    [Required]
+    [MaxLength(1)]
+    [RegularExpression("^[AIB]$")]
     public string Estado { get; set; } = "A";
 
     // Navegación
@@ -33,5 +43,4 @@ public class Usuario
     public Rol Rol { get; set; } = null!;
     public ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
     public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
-    public ICollection<Auditoria> Auditorias { get; set; } = new List<Auditoria>();
 }

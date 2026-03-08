@@ -22,7 +22,6 @@ public class Rol
 
     // Navegación
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
-    public ICollection<RolPermiso> RolPermisos { get; set; } = new List<RolPermiso>();
 
     // Propiedad de compatibilidad para código que espera `Nombre`
     [NotMapped]

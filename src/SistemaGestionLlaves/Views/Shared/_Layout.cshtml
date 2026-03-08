@@ -40,6 +40,9 @@
             <a asp-controller="Ambientes" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Ambientes" ? "active" : "")">
                 <i class="bi bi-door-open"></i> Ambientes
             </a>
+            <a asp-controller="Incidencias" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Incidencias" ? "active" : "")">
+                <i class="bi bi-exclamation-octagon"></i> Incidencias
+            </a>
             <a asp-controller="Persona" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Persona" ? "active" : "")">
                 <i class="bi bi-people"></i> Personas
             </a>
@@ -47,6 +50,15 @@
 
 
             <div class="menu-label">Sistema</div>
+            <a asp-controller="Auditoria" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Auditoria" ? "active" : "")">
+                <i class="bi bi-clock-history"></i> Registro de Auditoría
+            </a>
+            <a asp-controller="Importacion" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Importacion" ? "active" : "")">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Importación Masiva
+            </a>
+            <a asp-controller="CodigosQR" asp-action="Escanear" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CodigosQR" ? "active" : "")">
+                <i class="bi bi-qr-code-scan"></i> Escáner QR
+            </a>
             <a asp-controller="Reportes" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reportes" ? "active" : "")">
                 <i class="bi bi-file-earmark-bar-graph"></i> Reportes
             </a>

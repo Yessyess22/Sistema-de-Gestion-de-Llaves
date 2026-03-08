@@ -81,6 +81,32 @@ public class ReportesController : Controller
         public double PromedioHorasPrestamo { get; set; }
     }
 
+    private sealed class HistorialPersonaItem
+    {
+        public DateTime Fecha { get; set; }
+        public string Tipo { get; set; } = string.Empty; // Prestamo o Reserva
+        public string Llave { get; set; } = string.Empty;
+        public string Ambiente { get; set; } = string.Empty;
+        public string Detalle { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+    }
+
+    private sealed class DisponibilidadTipoItem
+    {
+        public string TipoAmbiente { get; set; } = string.Empty;
+        public int TotalLlaves { get; set; }
+        public int Disponibles { get; set; }
+        public int Prestadas { get; set; }
+        public int Reservadas { get; set; }
+        public double PorcentajeDisponibilidad { get; set; }
+    }
+
+    private sealed class AnalisisTemporalItem
+    {
+        public string Etiqueta { get; set; } = string.Empty; // Mes o Día
+        public int Cantidad { get; set; }
+    }
+
     public ReportesController(ApplicationDbContext context)
     {
         _context = context;
@@ -125,6 +151,23 @@ public class ReportesController : Controller
         return View();
     }
 
+    public async Task<IActionResult> HistorialPersona()
+    {
+        await CargarFiltrosAsync();
+        return View();
+    }
+
+    public async Task<IActionResult> DisponibilidadTipo()
+    {
+        await CargarFiltrosAsync();
+        return View();
+    }
+
+    public IActionResult AnalisisTemporal()
+    {
+        return View();
+    }
+
     private async Task CargarFiltrosAsync()
     {
         ViewData["Ambientes"] = new SelectList(
@@ -142,6 +185,19 @@ public class ReportesController : Controller
                 .Select(l => new { l.IdLlave, Nombre = l.Codigo })
                 .ToListAsync(),
             "IdLlave", "Nombre");
+
+        ViewData["Personas"] = new SelectList(
+            await _context.Personas
+                .OrderBy(p => p.Apellidos)
+                .Select(p => new { p.IdPersona, Nombre = p.Apellidos + ", " + p.Nombres + " (" + p.Ci + ")" })
+                .ToListAsync(),
+            "IdPersona", "Nombre");
+
+        ViewData["TiposAmbiente"] = new SelectList(
+            await _context.TiposAmbiente
+                .OrderBy(t => t.NombreTipo)
+                .ToListAsync(),
+            "IdTipo", "NombreTipo");
     }
 
     [HttpGet]
@@ -206,68 +262,85 @@ public class ReportesController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> HistorialPersonaData(int? idPersona, DateTime? fechaDesde, DateTime? fechaHasta)
+    {
+        if (!idPersona.HasValue) return BadRequest("Debe seleccionar una persona.");
+        
+        if (fechaDesde.HasValue && fechaHasta.HasValue && fechaDesde > fechaHasta)
+            return BadRequest("La fecha inicial no puede ser posterior a la fecha final.");
+
+        var existe = await _context.Personas.AnyAsync(p => p.IdPersona == idPersona.Value);
+        if (!existe) return NotFound("La persona seleccionada no existe.");
+
+        var data = await ObtenerHistorialPersonaAsync(idPersona.Value, fechaDesde, fechaHasta);
+        return Ok(new { total = data.Count, data });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DisponibilidadTipoData(int? idTipoAmbiente)
+    {
+        if (idTipoAmbiente.HasValue)
+        {
+            var existe = await _context.TiposAmbiente.AnyAsync(t => t.IdTipo == idTipoAmbiente.Value);
+            if (!existe) return NotFound("El tipo de ambiente seleccionado no existe.");
+        }
+
+        var data = await ObtenerDisponibilidadTipoAsync(idTipoAmbiente);
+        return Ok(new { total = data.Count, data });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AnalisisTemporalData(string basePeriodo = "mensual")
+    {
+        var data = await ObtenerAnalisisTemporalAsync(basePeriodo);
+        return Ok(new { data });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> ExportarReservasPdf(DateTime? fechaDesde, DateTime? fechaHasta, int? idAmbiente)
     {
         var data = await ObtenerReservasAsync(fechaDesde, fechaHasta, idAmbiente);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Reporte de Reservas", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Reporte de Reservas").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(0.9f);
+                    columns.RelativeColumn(2.2f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1.8f);
+                    columns.RelativeColumn(1.6f);
+                    columns.RelativeColumn(1.6f);
+                    columns.RelativeColumn(1.1f);
                 });
 
-                page.Content().PaddingTop(12).Table(table =>
+                table.Header(header =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(0.9f);
-                        columns.RelativeColumn(2.2f);
-                        columns.RelativeColumn(1.2f);
-                        columns.RelativeColumn(1.8f);
-                        columns.RelativeColumn(1.6f);
-                        columns.RelativeColumn(1.6f);
-                        columns.RelativeColumn(1.1f);
-                    });
-
-                    table.Header(header =>
-                    {
-                        header.Cell().Element(CellHeader).Text("#");
-                        header.Cell().Element(CellHeader).Text("Persona");
-                        header.Cell().Element(CellHeader).Text("Llave");
-                        header.Cell().Element(CellHeader).Text("Ambiente");
-                        header.Cell().Element(CellHeader).Text("Inicio");
-                        header.Cell().Element(CellHeader).Text("Fin");
-                        header.Cell().Element(CellHeader).Text("Estado");
-                    });
-
-                    foreach (var item in data)
-                    {
-                        table.Cell().Element(CellBody).Text($"#{item.IdReserva}");
-                        table.Cell().Element(CellBody).Text(item.Persona);
-                        table.Cell().Element(CellBody).Text(item.Llave);
-                        table.Cell().Element(CellBody).Text(item.Ambiente);
-                        table.Cell().Element(CellBody).Text(item.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
-                        table.Cell().Element(CellBody).Text(item.FechaFin.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
-                        table.Cell().Element(CellBody).Text(TraducirEstadoReserva(item.Estado));
-                    }
-
-                    if (!data.Any())
-                    {
-                        table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
-                    }
+                    header.Cell().Element(CellHeader).Text("#");
+                    header.Cell().Element(CellHeader).Text("Persona");
+                    header.Cell().Element(CellHeader).Text("Llave");
+                    header.Cell().Element(CellHeader).Text("Ambiente");
+                    header.Cell().Element(CellHeader).Text("Inicio");
+                    header.Cell().Element(CellHeader).Text("Fin");
+                    header.Cell().Element(CellHeader).Text("Estado");
                 });
 
-                page.Footer().AlignRight().Text($"Total: {data.Count} reserva(s)").FontColor(Colors.Grey.Darken1);
+                foreach (var item in data)
+                {
+                    table.Cell().Element(CellBody).Text($"#{item.IdReserva}");
+                    table.Cell().Element(CellBody).Text(item.Persona);
+                    table.Cell().Element(CellBody).Text(item.Llave);
+                    table.Cell().Element(CellBody).Text(item.Ambiente);
+                    table.Cell().Element(CellBody).Text(item.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Element(CellBody).Text(item.FechaFin.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Element(CellBody).Text(TraducirEstadoReserva(item.Estado));
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
             });
-        }).GeneratePdf();
+        }, $"Total: {data.Count} reserva(s)");
 
         return File(pdf, "application/pdf", $"reporte_reservas_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
@@ -276,65 +349,47 @@ public class ReportesController : Controller
     public async Task<IActionResult> ExportarPrestamosPdf(DateTime? fechaDesde, DateTime? fechaHasta, int? idAmbiente, string? estado)
     {
         var data = await ObtenerPrestamosAsync(fechaDesde, fechaHasta, idAmbiente, estado);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Reporte de Préstamos", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Reporte de Préstamos").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(0.9f);
+                    columns.RelativeColumn(2.2f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1.8f);
+                    columns.RelativeColumn(1.7f);
+                    columns.RelativeColumn(1.7f);
+                    columns.RelativeColumn(1.1f);
                 });
 
-                page.Content().PaddingTop(12).Table(table =>
+                table.Header(header =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(0.9f);
-                        columns.RelativeColumn(2.2f);
-                        columns.RelativeColumn(1.2f);
-                        columns.RelativeColumn(1.8f);
-                        columns.RelativeColumn(1.7f);
-                        columns.RelativeColumn(1.7f);
-                        columns.RelativeColumn(1.1f);
-                    });
-
-                    table.Header(header =>
-                    {
-                        header.Cell().Element(CellHeader).Text("#");
-                        header.Cell().Element(CellHeader).Text("Persona");
-                        header.Cell().Element(CellHeader).Text("Llave");
-                        header.Cell().Element(CellHeader).Text("Ambiente");
-                        header.Cell().Element(CellHeader).Text("Préstamo");
-                        header.Cell().Element(CellHeader).Text("Devolución");
-                        header.Cell().Element(CellHeader).Text("Estado");
-                    });
-
-                    foreach (var item in data)
-                    {
-                        table.Cell().Element(CellBody).Text($"#{item.IdPrestamo}");
-                        table.Cell().Element(CellBody).Text(item.Persona);
-                        table.Cell().Element(CellBody).Text(item.Llave);
-                        table.Cell().Element(CellBody).Text(item.Ambiente);
-                        table.Cell().Element(CellBody).Text(item.FechaHoraPrestamo.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
-                        table.Cell().Element(CellBody).Text(item.FechaHoraDevolucionReal.HasValue ? item.FechaHoraDevolucionReal.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm") : "-");
-                        table.Cell().Element(CellBody).Text(TraducirEstadoPrestamo(item.Estado));
-                    }
-
-                    if (!data.Any())
-                    {
-                        table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
-                    }
+                    header.Cell().Element(CellHeader).Text("#");
+                    header.Cell().Element(CellHeader).Text("Persona");
+                    header.Cell().Element(CellHeader).Text("Llave");
+                    header.Cell().Element(CellHeader).Text("Ambiente");
+                    header.Cell().Element(CellHeader).Text("Préstamo");
+                    header.Cell().Element(CellHeader).Text("Devolución");
+                    header.Cell().Element(CellHeader).Text("Estado");
                 });
 
-                page.Footer().AlignRight().Text($"Total: {data.Count} préstamo(s)").FontColor(Colors.Grey.Darken1);
+                foreach (var item in data)
+                {
+                    table.Cell().Element(CellBody).Text($"#{item.IdPrestamo}");
+                    table.Cell().Element(CellBody).Text(item.Persona);
+                    table.Cell().Element(CellBody).Text(item.Llave);
+                    table.Cell().Element(CellBody).Text(item.Ambiente);
+                    table.Cell().Element(CellBody).Text(item.FechaHoraPrestamo.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Element(CellBody).Text(item.FechaHoraDevolucionReal.HasValue ? item.FechaHoraDevolucionReal.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm") : "-");
+                    table.Cell().Element(CellBody).Text(TraducirEstadoPrestamo(item.Estado));
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
             });
-        }).GeneratePdf();
+        }, $"Total: {data.Count} préstamo(s)");
 
         return File(pdf, "application/pdf", $"reporte_prestamos_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
@@ -343,63 +398,42 @@ public class ReportesController : Controller
     public async Task<IActionResult> ExportarTopPersonasPdf(DateTime? fechaDesde, DateTime? fechaHasta, int top = 10)
     {
         var data = await ObtenerTopPersonasAsync(fechaDesde, fechaHasta, top);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Top Personas Solicitantes", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Top Personas Solicitantes").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(0.8f);
+                    columns.RelativeColumn(2.8f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1.2f);
                 });
 
-                page.Content().PaddingTop(12).Column(col =>
+                table.Header(header =>
                 {
-                    col.Item().Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(0.8f);
-                            columns.RelativeColumn(2.8f);
-                            columns.RelativeColumn(1.2f);
-                            columns.RelativeColumn(1.2f);
-                            columns.RelativeColumn(1.2f);
-                        });
-
-                        table.Header(header =>
-                        {
-                            header.Cell().Element(CellHeader).Text("#");
-                            header.Cell().Element(CellHeader).Text("Persona");
-                            header.Cell().Element(CellHeader).Text("Préstamos");
-                            header.Cell().Element(CellHeader).Text("Reservas");
-                            header.Cell().Element(CellHeader).Text("Total");
-                        });
-
-                        for (var i = 0; i < data.Count; i++)
-                        {
-                            var item = data[i];
-                            table.Cell().Element(CellBody).Text((i + 1).ToString());
-                            table.Cell().Element(CellBody).Text(item.Nombre);
-                            table.Cell().Element(CellBody).Text(item.Prestamos.ToString());
-                            table.Cell().Element(CellBody).Text(item.Reservas.ToString());
-                            table.Cell().Element(CellBody).Text(item.Total.ToString());
-                        }
-
-                        if (!data.Any())
-                        {
-                            table.Cell().ColumnSpan(5).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
-                        }
-                    });
+                    header.Cell().Element(CellHeader).Text("#");
+                    header.Cell().Element(CellHeader).Text("Persona");
+                    header.Cell().Element(CellHeader).Text("Préstamos");
+                    header.Cell().Element(CellHeader).Text("Reservas");
+                    header.Cell().Element(CellHeader).Text("Total");
                 });
 
-                page.Footer().AlignRight().Text($"Total solicitudes: {data.Sum(x => x.Total)}").FontColor(Colors.Grey.Darken1);
+                for (var i = 0; i < data.Count; i++)
+                {
+                    var item = data[i];
+                    table.Cell().Element(CellBody).Text((i + 1).ToString());
+                    table.Cell().Element(CellBody).Text(item.Nombre);
+                    table.Cell().Element(CellBody).Text(item.Prestamos.ToString());
+                    table.Cell().Element(CellBody).Text(item.Reservas.ToString());
+                    table.Cell().Element(CellBody).Text(item.Total.ToString());
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(5).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
             });
-        }).GeneratePdf();
+        }, $"Total solicitudes: {data.Sum(x => x.Total)}");
 
         return File(pdf, "application/pdf", $"reporte_top_personas_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
@@ -408,63 +442,47 @@ public class ReportesController : Controller
     public async Task<IActionResult> ExportarInventarioLlavesPdf(int? idAmbiente, string? estado)
     {
         var data = await ObtenerInventarioLlavesAsync(idAmbiente, estado);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Inventario de Llaves", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Inventario de Llaves").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(1f);
+                    columns.RelativeColumn(2f);
+                    columns.RelativeColumn(0.9f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1f);
+                    columns.RelativeColumn(2.2f);
+                    columns.RelativeColumn(1.5f);
                 });
 
-                page.Content().PaddingTop(12).Table(table =>
+                table.Header(header =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(1f);
-                        columns.RelativeColumn(2f);
-                        columns.RelativeColumn(0.9f);
-                        columns.RelativeColumn(1.2f);
-                        columns.RelativeColumn(1f);
-                        columns.RelativeColumn(2.2f);
-                        columns.RelativeColumn(1.5f);
-                    });
-
-                    table.Header(header =>
-                    {
-                        header.Cell().Element(CellHeader).Text("Código");
-                        header.Cell().Element(CellHeader).Text("Ambiente");
-                        header.Cell().Element(CellHeader).Text("Maestra");
-                        header.Cell().Element(CellHeader).Text("Estado");
-                        header.Cell().Element(CellHeader).Text("Préstamos");
-                        header.Cell().Element(CellHeader).Text("Último Solicitante");
-                        header.Cell().Element(CellHeader).Text("Última Fecha");
-                    });
-
-                    foreach (var item in data)
-                    {
-                        table.Cell().Element(CellBody).Text(item.Codigo);
-                        table.Cell().Element(CellBody).Text(item.Ambiente);
-                        table.Cell().Element(CellBody).Text(item.EsMaestra ? "Sí" : "No");
-                        table.Cell().Element(CellBody).Text(TraducirEstadoLlave(item.Estado));
-                        table.Cell().Element(CellBody).Text(item.TotalPrestamos.ToString());
-                        table.Cell().Element(CellBody).Text(item.UltimaPersona);
-                        table.Cell().Element(CellBody).Text(item.UltimaFecha.HasValue ? item.UltimaFecha.Value.ToLocalTime().ToString("dd/MM/yyyy") : "-");
-                    }
-
-                    if (!data.Any())
-                        table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
+                    header.Cell().Element(CellHeader).Text("Código");
+                    header.Cell().Element(CellHeader).Text("Ambiente");
+                    header.Cell().Element(CellHeader).Text("Maestra");
+                    header.Cell().Element(CellHeader).Text("Estado");
+                    header.Cell().Element(CellHeader).Text("Préstamos");
+                    header.Cell().Element(CellHeader).Text("Último Solicitante");
+                    header.Cell().Element(CellHeader).Text("Última Fecha");
                 });
 
-                page.Footer().AlignRight().Text($"Total: {data.Count} llave(s)").FontColor(Colors.Grey.Darken1);
+                foreach (var item in data)
+                {
+                    table.Cell().Element(CellBody).Text(item.Codigo);
+                    table.Cell().Element(CellBody).Text(item.Ambiente);
+                    table.Cell().Element(CellBody).Text(item.EsMaestra ? "Sí" : "No");
+                    table.Cell().Element(CellBody).Text(TraducirEstadoLlave(item.Estado));
+                    table.Cell().Element(CellBody).Text(item.TotalPrestamos.ToString());
+                    table.Cell().Element(CellBody).Text(item.UltimaPersona);
+                    table.Cell().Element(CellBody).Text(item.UltimaFecha.HasValue ? item.UltimaFecha.Value.ToLocalTime().ToString("dd/MM/yyyy") : "-");
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin datos para el filtro seleccionado.");
             });
-        }).GeneratePdf();
+        }, $"Total: {data.Count} llave(s)");
 
         return File(pdf, "application/pdf", $"reporte_inventario_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
@@ -473,63 +491,47 @@ public class ReportesController : Controller
     public async Task<IActionResult> ExportarPrestamosVencidosPdf(int? idAmbiente)
     {
         var data = await ObtenerPrestamosVencidosAsync(idAmbiente);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Préstamos Vencidos / No Devueltos", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Préstamos Vencidos / No Devueltos").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(0.8f);
+                    columns.RelativeColumn(2f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(1f);
+                    columns.RelativeColumn(1.8f);
+                    columns.RelativeColumn(1.2f);
                 });
 
-                page.Content().PaddingTop(12).Table(table =>
+                table.Header(header =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(0.8f);
-                        columns.RelativeColumn(2f);
-                        columns.RelativeColumn(1.2f);
-                        columns.RelativeColumn(1.2f);
-                        columns.RelativeColumn(1f);
-                        columns.RelativeColumn(1.8f);
-                        columns.RelativeColumn(1.2f);
-                    });
-
-                    table.Header(header =>
-                    {
-                        header.Cell().Element(CellHeader).Text("#");
-                        header.Cell().Element(CellHeader).Text("Persona");
-                        header.Cell().Element(CellHeader).Text("CI");
-                        header.Cell().Element(CellHeader).Text("Celular");
-                        header.Cell().Element(CellHeader).Text("Llave");
-                        header.Cell().Element(CellHeader).Text("Vto. Esperado");
-                        header.Cell().Element(CellHeader).Text("Días vencido");
-                    });
-
-                    foreach (var item in data)
-                    {
-                        table.Cell().Element(CellBody).Text($"#{item.IdPrestamo}");
-                        table.Cell().Element(CellBody).Text(item.Persona);
-                        table.Cell().Element(CellBody).Text(item.Ci);
-                        table.Cell().Element(CellBody).Text(item.Celular);
-                        table.Cell().Element(CellBody).Text(item.Llave);
-                        table.Cell().Element(CellBody).Text(item.FechaEsperada.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
-                        table.Cell().Element(CellBody).Text(item.DiasVencido == 0 ? "< 1 día" : $"{item.DiasVencido} día(s)");
-                    }
-
-                    if (!data.Any())
-                        table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin préstamos vencidos.");
+                    header.Cell().Element(CellHeader).Text("#");
+                    header.Cell().Element(CellHeader).Text("Persona");
+                    header.Cell().Element(CellHeader).Text("CI");
+                    header.Cell().Element(CellHeader).Text("Celular");
+                    header.Cell().Element(CellHeader).Text("Llave");
+                    header.Cell().Element(CellHeader).Text("Vto. Esperado");
+                    header.Cell().Element(CellHeader).Text("Días vencido");
                 });
 
-                page.Footer().AlignRight().Text($"Total: {data.Count} préstamo(s) vencido(s)").FontColor(Colors.Grey.Darken1);
+                foreach (var item in data)
+                {
+                    table.Cell().Element(CellBody).Text($"#{item.IdPrestamo}");
+                    table.Cell().Element(CellBody).Text(item.Persona);
+                    table.Cell().Element(CellBody).Text(item.Ci);
+                    table.Cell().Element(CellBody).Text(item.Celular);
+                    table.Cell().Element(CellBody).Text(item.Llave);
+                    table.Cell().Element(CellBody).Text(item.FechaEsperada.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Element(CellBody).Text(item.DiasVencido == 0 ? "< 1 día" : $"{item.DiasVencido} día(s)");
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(7).Element(CellBody).AlignCenter().Text("Sin préstamos vencidos.");
             });
-        }).GeneratePdf();
+        }, $"Total: {data.Count} préstamo(s) vencido(s)");
 
         return File(pdf, "application/pdf", $"reporte_vencidos_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
@@ -538,64 +540,162 @@ public class ReportesController : Controller
     public async Task<IActionResult> ExportarActividadAmbientePdf(DateTime? fechaDesde, DateTime? fechaHasta)
     {
         var data = await ObtenerActividadAmbienteAsync(fechaDesde, fechaHasta);
-
-        var pdf = Document.Create(container =>
+        var pdf = BaseReportPdf("Actividad por Ambiente", container =>
         {
-            container.Page(page =>
+            container.Table(table =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
-
-                page.Header().Column(col =>
+                table.ColumnsDefinition(columns =>
                 {
-                    col.Item().Text("Actividad por Ambiente").SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    columns.RelativeColumn(1.2f);
+                    columns.RelativeColumn(2.5f);
+                    columns.RelativeColumn(1.3f);
+                    columns.RelativeColumn(1.3f);
+                    columns.RelativeColumn(1.3f);
+                    columns.RelativeColumn(2f);
                 });
 
-                page.Content().PaddingTop(12).Table(table =>
+                table.Header(header =>
+                {
+                    header.Cell().Element(CellHeader).Text("Código");
+                    header.Cell().Element(CellHeader).Text("Ambiente");
+                    header.Cell().Element(CellHeader).Text("Préstamos");
+                    header.Cell().Element(CellHeader).Text("Reservas");
+                    header.Cell().Element(CellHeader).Text("Total");
+                    header.Cell().Element(CellHeader).Text("Prom. Horas Préstamo");
+                });
+
+                foreach (var item in data)
+                {
+                    table.Cell().Element(CellBody).Text(item.Codigo);
+                    table.Cell().Element(CellBody).Text(item.Ambiente);
+                    table.Cell().Element(CellBody).Text(item.TotalPrestamos.ToString());
+                    table.Cell().Element(CellBody).Text(item.TotalReservas.ToString());
+                    table.Cell().Element(CellBody).Text(item.TotalActividad.ToString());
+                    table.Cell().Element(CellBody).Text(item.PromedioHorasPrestamo > 0 ? $"{item.PromedioHorasPrestamo} h" : "—");
+                }
+
+                if (!data.Any())
+                    table.Cell().ColumnSpan(6).Element(CellBody).AlignCenter().Text("Sin actividad para el periodo seleccionado.");
+            });
+        }, $"Total actividad: {data.Sum(x => x.TotalActividad)} | Ambientes: {data.Count}");
+
+        return File(pdf, "application/pdf", $"reporte_actividad_ambiente_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportarHistorialPersonaPdf(int idPersona, DateTime? fechaDesde, DateTime? fechaHasta)
+    {
+        if (fechaDesde.HasValue && fechaHasta.HasValue && fechaDesde > fechaHasta)
+            return View("Error", new { mensaje = "Rango de fechas inválido." });
+
+        var persona = await _context.Personas.FindAsync(idPersona);
+        if (persona == null) return NotFound();
+
+        var nombrePersona = $"{persona.Apellidos}, {persona.Nombres}";
+        var data = await ObtenerHistorialPersonaAsync(idPersona, fechaDesde, fechaHasta);
+
+        var pdf = BaseReportPdf("Historial de Actividad por Persona", container =>
+        {
+            container.Column(col =>
+            {
+                col.Item().Text($"Persona: {nombrePersona}").FontSize(12).FontColor(Colors.Grey.Darken3);
+                col.Item().PaddingTop(10).Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.8f);
+                        columns.RelativeColumn(1.1f);
+                        columns.RelativeColumn(1.1f);
+                        columns.RelativeColumn(1.8f);
                         columns.RelativeColumn(2.5f);
-                        columns.RelativeColumn(1.3f);
-                        columns.RelativeColumn(1.3f);
-                        columns.RelativeColumn(1.3f);
-                        columns.RelativeColumn(2f);
+                        columns.RelativeColumn(1.2f);
                     });
 
                     table.Header(header =>
                     {
-                        header.Cell().Element(CellHeader).Text("Código");
+                        header.Cell().Element(CellHeader).Text("Fecha");
+                        header.Cell().Element(CellHeader).Text("Tipo");
+                        header.Cell().Element(CellHeader).Text("Llave");
                         header.Cell().Element(CellHeader).Text("Ambiente");
-                        header.Cell().Element(CellHeader).Text("Préstamos");
-                        header.Cell().Element(CellHeader).Text("Reservas");
-                        header.Cell().Element(CellHeader).Text("Total");
-                        header.Cell().Element(CellHeader).Text("Prom. Horas Préstamo");
+                        header.Cell().Element(CellHeader).Text("Detalle");
+                        header.Cell().Element(CellHeader).Text("Estado");
                     });
 
                     foreach (var item in data)
                     {
-                        table.Cell().Element(CellBody).Text(item.Codigo);
+                        table.Cell().Element(CellBody).Text(item.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm"));
+                        table.Cell().Element(CellBody).Text(item.Tipo);
+                        table.Cell().Element(CellBody).Text(item.Llave);
                         table.Cell().Element(CellBody).Text(item.Ambiente);
-                        table.Cell().Element(CellBody).Text(item.TotalPrestamos.ToString());
-                        table.Cell().Element(CellBody).Text(item.TotalReservas.ToString());
-                        table.Cell().Element(CellBody).Text(item.TotalActividad.ToString());
-                        table.Cell().Element(CellBody).Text(item.PromedioHorasPrestamo > 0 ? $"{item.PromedioHorasPrestamo} h" : "—");
+                        table.Cell().Element(CellBody).Text(item.Detalle);
+                        table.Cell().Element(CellBody).Text(item.Tipo == "Préstamo" ? TraducirEstadoPrestamo(item.Estado) : TraducirEstadoReserva(item.Estado));
                     }
 
                     if (!data.Any())
-                        table.Cell().ColumnSpan(6).Element(CellBody).AlignCenter().Text("Sin actividad para el periodo seleccionado.");
+                        table.Cell().ColumnSpan(6).Element(CellBody).AlignCenter().Text("Sin actividad registrada.");
                 });
-
-                page.Footer().AlignRight()
-                    .Text($"Total actividad: {data.Sum(x => x.TotalActividad)} | Ambientes: {data.Count}")
-                    .FontColor(Colors.Grey.Darken1);
             });
-        }).GeneratePdf();
+        }, $"Total registros: {data.Count}");
 
-        return File(pdf, "application/pdf", $"reporte_actividad_ambiente_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
+        return File(pdf, "application/pdf", $"historial_{idPersona}_{DateTime.Now:yyyyMMdd}.pdf");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportarDisponibilidadTipoPdf(int? idTipoAmbiente)
+    {
+        var tipoFiltro = "General";
+        if (idTipoAmbiente.HasValue)
+        {
+            var t = await _context.TiposAmbiente.FindAsync(idTipoAmbiente.Value);
+            if (t == null) return NotFound();
+            tipoFiltro = t.NombreTipo;
+        }
+        
+        var data = await ObtenerDisponibilidadTipoAsync(idTipoAmbiente);
+        var pdf = BaseReportPdf("Reporte de Disponibilidad de Llaves", container =>
+        {
+            container.Column(col =>
+            {
+                col.Item().Text($"Filtro: {tipoFiltro}").FontSize(12).FontColor(Colors.Grey.Darken3);
+                col.Item().PaddingTop(10).Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3f);
+                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.5f);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Element(CellHeader).Text("Tipo Ambiente");
+                        header.Cell().Element(CellHeader).Text("Total");
+                        header.Cell().Element(CellHeader).Text("Disp.");
+                        header.Cell().Element(CellHeader).Text("Prest.");
+                        header.Cell().Element(CellHeader).Text("Reser.");
+                        header.Cell().Element(CellHeader).Text("% Disp.");
+                    });
+
+                    foreach (var item in data)
+                    {
+                        table.Cell().Element(CellBody).Text(item.TipoAmbiente);
+                        table.Cell().Element(CellBody).AlignCenter().Text(item.TotalLlaves.ToString());
+                        table.Cell().Element(CellBody).AlignCenter().Text(item.Disponibles.ToString());
+                        table.Cell().Element(CellBody).AlignCenter().Text(item.Prestadas.ToString());
+                        table.Cell().Element(CellBody).AlignCenter().Text(item.Reservadas.ToString());
+                        table.Cell().Element(CellBody).AlignCenter().Text($"{item.PorcentajeDisponibilidad}%");
+                    }
+
+                    if (!data.Any())
+                        table.Cell().ColumnSpan(6).Element(CellBody).AlignCenter().Text("Sin datos disponibles.");
+                });
+            });
+        }, $"Disponibilidad al {DateTime.Now:dd/MM/yyyy}");
+
+        return File(pdf, "application/pdf", $"disponibilidad_{DateTime.Now:yyyyMMdd}.pdf");
     }
 
     private async Task<List<ReservaReporteItem>> ObtenerReservasAsync(DateTime? fechaDesde, DateTime? fechaHasta, int? idAmbiente)
@@ -873,6 +973,29 @@ public class ReportesController : Controller
         .ToList();
     }
 
+    private byte[] BaseReportPdf(string title, Action<IContainer> contentAction, string footerText)
+    {
+        return Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(28);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                page.Header().Column(col =>
+                {
+                    col.Item().Text(title).SemiBold().FontSize(16);
+                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                });
+
+                page.Content().PaddingTop(12).Element(contentAction);
+
+                page.Footer().AlignRight().Text(footerText).FontColor(Colors.Grey.Darken1);
+            });
+        }).GeneratePdf();
+    }
+
     private static IContainer CellHeader(IContainer container)
     {
         return container
@@ -891,6 +1014,133 @@ public class ReportesController : Controller
             .PaddingHorizontal(4)
             .BorderBottom(1)
             .BorderColor(Colors.Grey.Lighten3);
+    }
+
+    private async Task<List<HistorialPersonaItem>> ObtenerHistorialPersonaAsync(int idPersona, DateTime? fechaDesde, DateTime? fechaHasta)
+    {
+        var prestamos = _context.Prestamos
+            .Include(p => p.Llave).ThenInclude(l => l.Ambiente)
+            .Where(p => p.IdPersona == idPersona);
+
+        var reservas = _context.Reservas
+            .Include(r => r.Llave).ThenInclude(l => l.Ambiente)
+            .Where(r => r.IdPersona == idPersona);
+
+        if (fechaDesde.HasValue)
+        {
+            var desde = DateTime.SpecifyKind(fechaDesde.Value.Date, DateTimeKind.Utc);
+            prestamos = prestamos.Where(p => p.FechaHoraPrestamo >= desde);
+            reservas = reservas.Where(r => r.FechaInicio >= desde);
+        }
+
+        if (fechaHasta.HasValue)
+        {
+            var hasta = DateTime.SpecifyKind(fechaHasta.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+            prestamos = prestamos.Where(p => p.FechaHoraPrestamo <= hasta);
+            reservas = reservas.Where(r => r.FechaInicio <= hasta);
+        }
+
+        var pList = await prestamos.Select(p => new HistorialPersonaItem
+        {
+            Fecha = p.FechaHoraPrestamo,
+            Tipo = "Préstamo",
+            Llave = p.Llave.Codigo,
+            Ambiente = p.Llave.Ambiente != null ? p.Llave.Ambiente.Nombre : "-",
+            Estado = p.Estado,
+            Detalle = p.FechaHoraDevolucionReal.HasValue ? $"Devuelto: {p.FechaHoraDevolucionReal.Value:dd/MM HH:mm}" : "Activo/Sin devolución"
+        }).ToListAsync();
+
+        var rList = await reservas.Select(r => new HistorialPersonaItem
+        {
+            Fecha = r.FechaInicio,
+            Tipo = "Reserva",
+            Llave = r.Llave.Codigo,
+            Ambiente = r.Llave.Ambiente != null ? r.Llave.Ambiente.Nombre : "-",
+            Estado = r.Estado,
+            Detalle = $"Hasta: {r.FechaFin:dd/MM HH:mm}"
+        }).ToListAsync();
+
+        return pList.Concat(rList).OrderByDescending(x => x.Fecha).ToList();
+    }
+
+    private async Task<List<DisponibilidadTipoItem>> ObtenerDisponibilidadTipoAsync(int? idTipoAmbiente)
+    {
+        var query = _context.Ambientes.AsQueryable();
+        if (idTipoAmbiente.HasValue)
+            query = query.Where(a => a.IdTipo == idTipoAmbiente.Value);
+
+        var ambientes = await query.Include(a => a.TipoAmbiente).ToListAsync();
+        var idAmbientes = ambientes.Select(a => a.IdAmbiente).ToList();
+
+        var llaves = await _context.Llaves
+            .Where(l => idAmbientes.Contains(l.IdAmbiente) && l.Estado != "I")
+            .ToListAsync();
+
+        return ambientes.Select(a =>
+        {
+            var llavesAmbiente = llaves.Where(l => l.IdAmbiente == a.IdAmbiente).ToList();
+            int total = llavesAmbiente.Count;
+            int disp = llavesAmbiente.Count(l => l.Estado == "D");
+            int pres = llavesAmbiente.Count(l => l.Estado == "P");
+            int res = llavesAmbiente.Count(l => l.Estado == "R");
+
+            return new DisponibilidadTipoItem
+            {
+                TipoAmbiente = a.TipoAmbiente?.NombreTipo ?? "Sin Tipo",
+                TotalLlaves = total,
+                Disponibles = disp,
+                Prestadas = pres,
+                Reservadas = res,
+                PorcentajeDisponibilidad = total > 0 ? Math.Round((double)disp / total * 100, 1) : 0
+            };
+        })
+        .Where(x => x.TotalLlaves > 0)
+        .OrderByDescending(x => x.PorcentajeDisponibilidad)
+        .ToList();
+    }
+
+    private async Task<List<AnalisisTemporalItem>> ObtenerAnalisisTemporalAsync(string basePeriodo)
+    {
+        if (basePeriodo == "dia")
+        {
+            var prestamos = await _context.Prestamos
+                .Select(p => p.FechaHoraPrestamo)
+                .ToListAsync();
+
+            var dias = new[] { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" };
+            return prestamos
+                .GroupBy(p => p.ToLocalTime().DayOfWeek)
+                .Select(g => new AnalisisTemporalItem
+                {
+                    Etiqueta = dias[(int)g.Key],
+                    Cantidad = g.Count()
+                })
+                .OrderBy(x => Array.IndexOf(dias, x.Etiqueta))
+                .ToList();
+        }
+        else
+        {
+            // Mensual (últimos 12 meses)
+            var haceUnAño = DateTime.UtcNow.AddMonths(-11);
+            haceUnAño = new DateTime(haceUnAño.Year, haceUnAño.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var prestamos = await _context.Prestamos
+                .Where(p => p.FechaHoraPrestamo >= haceUnAño)
+                .Select(p => p.FechaHoraPrestamo)
+                .ToListAsync();
+
+            var meses = new[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+            
+            var resultado = new List<AnalisisTemporalItem>();
+            for (int i = 0; i < 12; i++)
+            {
+                var fecha = haceUnAño.AddMonths(i);
+                var etiqueta = $"{meses[fecha.Month - 1]} {fecha.Year % 100}";
+                var count = prestamos.Count(p => p.Month == fecha.Month && p.Year == fecha.Year);
+                resultado.Add(new AnalisisTemporalItem { Etiqueta = etiqueta, Cantidad = count });
+            }
+            return resultado;
+        }
     }
 
     private static string TraducirEstadoReserva(string estado)

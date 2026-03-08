@@ -13,11 +13,18 @@ public class Reserva
     public int IdPersona { get; set; }
     public int IdUsuario { get; set; }   // Operador que registró la reserva
 
+    [Required]
+    [DataType(DataType.DateTime)]
     public DateTime FechaInicio { get; set; }
+
+    [Required]
+    [DataType(DataType.DateTime)]
     public DateTime FechaFin { get; set; }
 
     /// <summary>Estado: P=Pendiente, C=Confirmada, U=Utilizada, X=Cancelada</summary>
-    [Required, MaxLength(1)]
+    [Required]
+    [MaxLength(1)]
+    [RegularExpression("^[PCUX]$")]
     public string Estado { get; set; } = "P";
 
     // Navegación

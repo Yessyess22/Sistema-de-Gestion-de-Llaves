@@ -1,0 +1,122 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Disponibilidad por Tipo";
+    ViewData["HideTopSubtitle"] = true;
+    ViewData["HideTopHeader"] = true;
+    var tiposAmbiente = ViewData["TiposAmbiente"] as SelectList;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-shield-check me-2" style="color:#0369a1;"></i>Disponibilidad por Tipo de Ambiente
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Monitorea la disponibilidad de llaves agrupadas por categoría de espacio.</p>
+    </div>
+    <a asp-controller="Reportes" asp-action="Index" class="btn px-4 py-2" style="background:#f1f5f9; color:#64748b; border-radius:12px; border:none; font-weight:600;">
+        <i class="bi bi-arrow-left me-1"></i> Volver a Reportes
+    </a>
+</div>
+
+<div class="ui-card mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Filtrar por Tipo</label>
+            <select id="fTipo" asp-items="tiposAmbiente" class="form-select" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
+                <option value="">-- Todos los Tipos --</option>
+            </select>
+        </div>
+        <div class="col-md-6 d-flex gap-2">
+            <button class="btn px-4 py-2 w-100" onclick="cargarDisponibilidad()" style="background:#0369a1; color:white; border-radius:12px; border:none; font-weight:600;">
+                <i class="bi bi-filter me-1"></i> Filtrar
+            </button>
+            <button class="btn px-4 py-2" onclick="exportarPdf()" style="background:#f1f5f9; color:#334155; border-radius:12px; border:none; font-weight:600;">
+                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="ui-card">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr style="border-bottom: 2px solid #f1f5f9;">
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;">TIPO AMBIENTE</th>
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;" class="text-center">TOTAL LLAVES</th>
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;" class="text-center text-success">DISPONIBLES</th>
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;" class="text-center text-primary">PRESTADAS</th>
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;" class="text-center text-warning">RESERVADAS</th>
+                    <th style="color:#64748b; font-weight:600; font-size:0.85rem;" class="text-center">DISPONIBILIDAD (%)</th>
+                </tr>
+            </thead>
+            <tbody id="tablaDisponibilidad">
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="spinner-border text-primary spinner-border-sm" role="status"></div> Cargando datos...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function cargarDisponibilidad() {
+        const idTipo = document.getElementById('fTipo').value;
+        const tbody = document.getElementById('tablaDisponibilidad');
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary spinner-border-sm" role="status"></div> Cargando disponibilidad...</td></tr>`;
+
+        try {
+            const url = `/Reportes/DisponibilidadTipoData?idTipoAmbiente=${idTipo}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            
+            if (!res.ok) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger"><i class="bi bi-exclamation-triangle me-2"></i> ${json || 'Error al cargar datos'}</td></tr>`;
+                return;
+            }
+
+            if (json.data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5" style="color:#94a3b8;">No hay datos para mostrar.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = json.data.map(item => `
+                <tr>
+                    <td class="fw-semibold" style="color:#0f172a;">${item.tipoAmbiente}</td>
+                    <td class="text-center fw-medium">${item.totalLlaves}</td>
+                    <td class="text-center text-success fw-bold">${item.disponibles}</td>
+                    <td class="text-center text-primary fw-medium">${item.prestadas}</td>
+                    <td class="text-center text-warning fw-medium">${item.reservadas}</td>
+                    <td class="text-center">
+                        <div class="d-flex align-items-center gap-2 justify-content-center">
+                            <div class="progress flex-grow-1" style="height: 6px; width: 60px; border-radius: 10px; background: #f1f5f9;">
+                                <div class="progress-bar ${getProgressColor(item.porcentajeDisponibilidad)}" 
+                                     role="progressbar" style="width: ${item.porcentajeDisponibilidad}%"></div>
+                            </div>
+                            <span style="font-size: 0.85rem; font-weight: 600; width: 45px;">${item.porcentajeDisponibilidad}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger"><i class="bi bi-exclamation-triangle me-2"></i> Error de conexión con el servidor.</td></tr>`;
+        }
+    }
+
+    function getProgressColor(perc) {
+        if (perc > 70) return 'bg-success';
+        if (perc > 30) return 'bg-warning';
+        return 'bg-danger';
+    }
+
+    function exportarPdf() {
+        const idTipo = document.getElementById('fTipo').value;
+        window.location.href = `/Reportes/ExportarDisponibilidadTipoPdf?idTipoAmbiente=${idTipo}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarDisponibilidad);
+</script>
+}

@@ -4,54 +4,68 @@
     ViewData["Title"] = "Eliminar Persona";
 }
 
-<h2 class="mb-4 text-danger">Eliminar Persona</h2>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none d-inline-flex align-items-center gap-1 mb-2" style="color: #64748b; font-weight: 500; font-size: 0.9rem;">
+        <i class="bi bi-arrow-left"></i> Volver al listado
+    </a>
+    <h2 class="fw-bold" style="color:#b91c1c; font-size:1.4rem;">
+        <i class="bi bi-person-x me-2"></i>Eliminar Registro de Persona
+    </h2>
+</div>
 
-<div class="card shadow border-danger">
-    <div class="card-body">
+<div class="ui-card border-top border-4 border-danger" style="max-width: 600px;">
+    <div class="text-center mb-4">
+        <div class="mx-auto mb-3" style="width:70px; height:70px; background:#fee2e2; border-radius:20px; display:flex; align-items:center; justify-content:center; color:#b91c1c; font-size: 2rem;">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h4 class="fw-bold" style="color: #0f172a;">¿Confirmar eliminación?</h4>
+        <p style="color: #64748b;">Esta acción no se puede deshacer. Se eliminará permanentemente la información de la persona.</p>
+    </div>
 
-        <h5 class="text-danger">
-            ¿Estás segura de que deseas eliminar esta persona?
-        </h5>
-
-        <hr />
-
-        <dl class="row">
-            <dt class="col-sm-3">Nombre Completo</dt>
-            <dd class="col-sm-9">@Model.NombreCompleto</dd>
-
-            <dt class="col-sm-3">CI</dt>
-            <dd class="col-sm-9">@Model.Ci</dd>
-
-            <dt class="col-sm-3">Correo</dt>
-            <dd class="col-sm-9">@Model.Correo</dd>
-
-            <dt class="col-sm-3">Celular</dt>
-            <dd class="col-sm-9">@Model.Celular</dd>
-
-            <dt class="col-sm-3">Estado</dt>
-            <dd class="col-sm-9">
-                @if (Model.Estado == "A")
-                {
-                    <span class="badge bg-success">Activo</span>
+    <div class="bg-light p-4 rounded-4 mb-4">
+        <div class="mb-3">
+            <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Nombre Completo</label>
+            <div class="fw-bold" style="color: #0f172a; font-size: 1.1rem;">@Model.Nombres @Model.Apellidos</div>
+        </div>
+        <div class="row">
+            <div class="col-6 mb-3">
+                <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Identificación</label>
+                <div class="fw-semibold" style="color: #334155;">@Model.Ci</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Estado Actual</label>
+                @{
+                    var (bg, fg, label, icon) = Model.Estado switch
+                    {
+                        "A" => ("#dcfce7", "#166534", "Activo", "check-circle"),
+                        _ => ("#f1f5f9", "#64748b", "Inactivo", "x-circle")
+                    };
                 }
-                else
-                {
-                    <span class="badge bg-danger">Inactivo</span>
-                }
-            </dd>
-        </dl>
+                <span class="badge rounded-pill" style="background:@bg; color:@fg; font-size: 0.75rem;">
+                    <i class="bi bi-@icon me-1"></i>@label
+                </span>
+            </div>
+            <div class="col-12">
+                <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Contacto</label>
+                <div class="fw-semibold" style="color: #334155; font-size: 0.9rem;">
+                    <i class="bi bi-envelope me-1"></i> @Model.Correo
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="IdPersona" />
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="IdPersona" />
 
-            <button type="submit" class="btn btn-danger">
-                Sí, Eliminar
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn py-2 fw-bold" 
+                    style="background:#b91c1c; color:white; border-radius:12px; border:none;">
+                <i class="bi bi-trash me-2"></i>Eliminar Permanentemente
             </button>
-
-            <a asp-action="Index" class="btn btn-secondary">
+            <a asp-action="Index" class="btn py-2 fw-bold" 
+               style="background:#f1f5f9; color:#475569; border:none; border-radius:12px;">
                 Cancelar
             </a>
-        </form>
-
-    </div>
+        </div>
+    </form>
 </div>

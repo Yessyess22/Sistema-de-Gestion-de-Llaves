@@ -7,11 +7,11 @@ namespace SistemaGestionLlaves.Controllers
 {
     [Route("api/reservas")]
     [ApiController]
-    public class ApiReservasController : ControllerBase
+    public class ReservasApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ApiReservasController(ApplicationDbContext context)
+        public ReservasApiController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -70,6 +70,17 @@ namespace SistemaGestionLlaves.Controllers
 
             if (fechaFin <= fechaInicio)
                 return BadRequest(new { exito = false, mensaje = "La fecha fin debe ser mayor a la fecha inicio." });
+
+            if (fechaInicio < DateTime.UtcNow.AddMinutes(-5)) // Pequeño margen para latencia
+                return BadRequest(new { exito = false, mensaje = "La fecha de inicio no puede ser en el pasado." });
+
+            // Verificar que la llave existe y no está en mantenimiento
+            var llave = await _context.Llaves.FindAsync(dto.IdLlave);
+            if (llave == null)
+                return NotFound(new { exito = false, mensaje = "La llave no existe." });
+
+            if (llave.Estado == "M")
+                return BadRequest(new { exito = false, mensaje = $"La llave '{llave.Codigo}' está bloqueada por mantenimiento." });
 
             // VALIDACIÓN: NO SOLAPAMIENTO
             bool existeConflicto = await _context.Reservas.AnyAsync(r =>

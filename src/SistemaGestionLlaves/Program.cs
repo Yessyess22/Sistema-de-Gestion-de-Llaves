@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 using SistemaGestionLlaves.Data;
+using SistemaGestionLlaves.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,10 @@ builder.Services.AddAuthentication("CookieAuth")
     });
 
 builder.Services.AddAuthorization();
+
+// Registro de Servicios Propios
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddHostedService<NotificationWorker>();
 
 // -------------------------------------------------------
 // Pipeline

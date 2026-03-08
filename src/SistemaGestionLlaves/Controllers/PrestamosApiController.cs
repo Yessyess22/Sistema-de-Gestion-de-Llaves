@@ -15,7 +15,8 @@ public record PrestamoRequest(
     int IdPersona,
     int IdUsuario,
     DateTime? FechaHoraDevolucionEsperada,
-    string? Observaciones
+    string? Observaciones,
+    string? FirmaBase64
 );
 
 // ─────────────────────────────────────────────────────────────
@@ -170,7 +171,11 @@ public class PrestamosApiController : ControllerBase
         if (llave == null)
             return NotFound(new ApiResponse(false, $"Llave con Id={dto.IdLlave} no encontrada."));
 
-        // Regla 1: la llave debe estar Disponible
+        // Regla 1: la llave debe estar Disponible y no en mantenimiento
+        if (llave.Estado == "M")
+            return UnprocessableEntity(new ApiResponse(false,
+                $"La llave '{llave.Codigo}' está bloqueada por mantenimiento o incidencia reportada."));
+
         if (llave.Estado != "D")
             return UnprocessableEntity(new ApiResponse(false,
                 $"La llave '{llave.Codigo}' no está disponible (estado actual: {llave.Estado})."));
@@ -182,10 +187,13 @@ public class PrestamosApiController : ControllerBase
             return UnprocessableEntity(new ApiResponse(false,
                 $"La llave '{llave.Codigo}' ya tiene un préstamo activo."));
 
-        // Verificar que la persona existe
+        // Verificar que la persona existe y está activa
         var persona = await _db.Personas.FindAsync(dto.IdPersona);
         if (persona == null)
             return NotFound(new ApiResponse(false, $"Persona con Id={dto.IdPersona} no encontrada."));
+        
+        if (persona.Estado != "A")
+            return UnprocessableEntity(new ApiResponse(false, $"La persona '{persona.NombreCompleto}' no está activa. No se puede realizar el préstamo."));
 
         // Verificar que el usuario (operador) existe
         bool usuarioExiste = await _db.Usuarios.AnyAsync(u => u.IdUsuario == dto.IdUsuario);
@@ -201,7 +209,8 @@ public class PrestamosApiController : ControllerBase
             FechaHoraPrestamo          = DateTime.UtcNow,
             FechaHoraDevolucionEsperada = dto.FechaHoraDevolucionEsperada,
             Estado                     = "A",
-            Observaciones              = dto.Observaciones?.Trim()
+            Observaciones              = dto.Observaciones?.Trim(),
+            FirmaBase64                = dto.FirmaBase64
         };
 
         // Cambiar estado de la llave

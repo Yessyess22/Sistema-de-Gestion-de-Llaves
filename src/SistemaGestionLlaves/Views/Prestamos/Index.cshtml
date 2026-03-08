@@ -228,6 +228,15 @@
         setTimeout(() => document.getElementById(id)?.remove(), 4000);
     }
 
-    document.addEventListener('DOMContentLoaded', cargarPrestamos);
+    document.addEventListener('DOMContentLoaded', async () => {
+        await cargarPrestamos();
+        
+        // Verificar si venimos desde el escáner QR para devolver una llave
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoId = urlParams.get('idPrestamo');
+        if (autoId) {
+            abrirModalDevolver(parseInt(autoId));
+        }
+    });
 </script>
 }

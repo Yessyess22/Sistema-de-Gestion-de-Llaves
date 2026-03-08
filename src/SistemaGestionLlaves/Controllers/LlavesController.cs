@@ -106,8 +106,6 @@ public class LlavesController : ControllerBase
                 .OrderByDescending(r => r.FechaInicio)
                 .Take(10))
                 .ThenInclude(r => r.Persona)
-            .Include(l => l.PersonasAutorizadas)
-                .ThenInclude(pa => pa.Persona)
             .FirstOrDefaultAsync(l => l.IdLlave == id);
 
         if (llave == null)
@@ -145,12 +143,6 @@ public class LlavesController : ControllerBase
                 r.FechaFin,
                 r.Estado,
                 Persona = $"{r.Persona.Nombres} {r.Persona.Apellidos}"
-            }),
-            PersonasAutorizadas = llave.PersonasAutorizadas.Select(pa => new
-            {
-                pa.Persona.IdPersona,
-                pa.Persona.Ci,
-                Nombre = $"{pa.Persona.Nombres} {pa.Persona.Apellidos}"
             })
         };
 
