@@ -35,7 +35,7 @@ public class LlavesViewController : Controller
         if (!string.IsNullOrWhiteSpace(busqueda))
             query = query.Where(l =>
                 l.Codigo.Contains(busqueda) ||
-                l.Ambiente.Nombre.Contains(busqueda));
+                (l.Ambiente != null && l.Ambiente.Nombre.Contains(busqueda)));
 
         ViewData["busqueda"] = busqueda;
         ViewData["estado"] = estado;

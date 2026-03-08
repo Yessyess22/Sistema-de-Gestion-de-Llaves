@@ -85,7 +85,7 @@ namespace SistemaGestionLlaves.Controllers
             // VALIDACIÓN: NO SOLAPAMIENTO
             bool existeConflicto = await _context.Reservas.AnyAsync(r =>
                 r.IdLlave == dto.IdLlave &&
-                r.Estado != "X" &&
+                (r.Estado == "P" || r.Estado == "C") &&
                 fechaInicio < r.FechaFin &&
                 fechaFin > r.FechaInicio
             );

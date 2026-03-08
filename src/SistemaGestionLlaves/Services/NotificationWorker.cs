@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,12 +15,14 @@ namespace SistemaGestionLlaves.Services
     {
         private readonly ILogger<NotificationWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly string _adminEmail;
         private DateTime _lastDailyReportRun = DateTime.MinValue;
 
-        public NotificationWorker(ILogger<NotificationWorker> logger, IServiceProvider serviceProvider)
+        public NotificationWorker(ILogger<NotificationWorker> logger, IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _adminEmail = configuration["EmailSettings:AdminEmail"] ?? "admin@upds.edu.bo";
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -114,27 +117,25 @@ namespace SistemaGestionLlaves.Services
 
         private async Task ProcesarReporteDiarioAsync(ApplicationDbContext context, IEmailService emailService)
         {
-            // Ejecutar una vez al día a las 08:00 AM (aproximadamente)
-            var ahora = DateTime.Now;
-            if (ahora.Hour == 8 && _lastDailyReportRun.Date != ahora.Date)
+            // Ejecutar una vez al día a las 08:00 UTC (equivalente a 04:00 AM Bolivia, inicio de jornada)
+            var ahoraUtc = DateTime.UtcNow;
+            if (ahoraUtc.Hour == 8 && _lastDailyReportRun.Date != ahoraUtc.Date)
             {
                 _logger.LogInformation("Generando reporte diario de morosidad...");
 
                 var vencidos = await context.Prestamos
                     .Include(p => p.Persona)
                     .Include(p => p.Llave)
-                    .Where(p => p.Estado == "A" && p.FechaHoraDevolucionEsperada < DateTime.UtcNow)
+                    .Where(p => p.Estado == "A" && p.FechaHoraDevolucionEsperada < ahoraUtc)
                     .ToListAsync();
 
                 if (vencidos.Any())
                 {
-                    // Enviar a un correo de administración (configurado en appsettings)
-                    var adminEmail = "admin@upds.edu.bo";
                     var body = $"Se han detectado {vencidos.Count} llaves no devueltas al inicio de la jornada.";
-                    await emailService.SendNotificationAsync(adminEmail, "Resumen Diario de Morosidad", body);
+                    await emailService.SendNotificationAsync(_adminEmail, "Resumen Diario de Morosidad", body);
                 }
 
-                _lastDailyReportRun = ahora;
+                _lastDailyReportRun = ahoraUtc;
             }
         }
     }

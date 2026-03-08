@@ -68,7 +68,7 @@ public class CuentaController : Controller
         {
             new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
             new(ClaimTypes.Name,           usuario.NombreUsuario),
-            new(ClaimTypes.Role,           usuario.Rol.Nombre),
+            new(ClaimTypes.Role,           usuario.Rol.NombreRol),
             new("NombreCompleto",          $"{usuario.Persona.Nombres} {usuario.Persona.Apellidos}"),
             new("IdPersona",               usuario.IdPersona.ToString())
         };

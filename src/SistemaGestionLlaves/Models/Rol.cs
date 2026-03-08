@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaGestionLlaves.Models;
 
@@ -22,8 +21,4 @@ public class Rol
 
     // Navegación
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
-
-    // Propiedad de compatibilidad para código que espera `Nombre`
-    [NotMapped]
-    public string Nombre => NombreRol;
 }
