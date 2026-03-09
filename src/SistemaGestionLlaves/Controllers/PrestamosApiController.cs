@@ -6,7 +6,7 @@ using SistemaGestionLlaves.Models;
 namespace SistemaGestionLlaves.Controllers;
 
 // ─────────────────────────────────────────────────────────────
-//  DTOs de entrada
+//  DTOs de entrada (ApiResponse is defined in LlavesController.cs)
 // ─────────────────────────────────────────────────────────────
 
 /// <summary>Cuerpo para crear un préstamo.</summary>

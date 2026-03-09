@@ -2,46 +2,199 @@
     ViewData["Title"] = "Dashboard";
 }
 
+<style>
+    /* Modern Aesthetic Custom Variables */
+    :root {
+        --dash-primary: #4F46E5; /* Indigo */
+        --dash-secondary: #06B6D4; /* Cyan */
+        --dash-success: #10B981; /* Emerald */
+        --dash-warning: #F59E0B; /* Amber */
+        --dash-danger: #EF4444; /* Red */
+        --dash-bg: #F8FAFC;
+        --dash-card-bg: #FFFFFF;
+        --dash-text-main: #0F172A;
+        --dash-text-muted: #64748B;
+        --dash-border: #E2E8F0;
+    }
+
+    body {
+        background-color: var(--dash-bg);
+    }
+
+    /* Glassmorphism & Modern Cards */
+    .glass-card {
+        background: var(--dash-card-bg);
+        border: 1px solid var(--dash-border);
+        border-radius: 1.25rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Animated Gradient Background for Highlight Card */
+    .gradient-card {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        color: white;
+        border: none;
+    }
+
+    .gradient-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: spin 10s linear infinite;
+        pointer-events: none;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Typographic Enhancements */
+    .dash-number {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.025em;
+        margin: 0.5rem 0;
+    }
+
+    .dash-label {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+
+    /* Circular Progress */
+    .circular-progress {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto;
+    }
+    
+    .circular-progress svg {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+
+    .circular-progress circle {
+        fill: none;
+        stroke-width: 12;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .circular-progress .bg {
+        stroke: var(--dash-border);
+    }
+
+    .circular-progress .fg {
+        stroke: var(--dash-primary);
+        stroke-dasharray: 440; /* 2 * pi * r (r=70) ≈ 440 */
+        stroke-dashoffset: 440;
+    }
+
+    .circular-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    /* Badges & Accents */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-prestado { background-color: rgba(245, 158, 11, 0.1); color: var(--dash-warning); }
+    .badge-devuelto { background-color: rgba(16, 185, 129, 0.1); color: var(--dash-success); }
+
+    /* Fade-in Animation for table rows */
+    .fade-in-row {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Loading Pulse */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: pulse 1.5s infinite;
+        border-radius: 4px;
+        color: transparent !important;
+    }
+
+    @@keyframes pulse {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+
 <div class="row g-4 mb-4">
-    <!-- Resumen Principal -->
+    <!-- Columna Principal -->
     <div class="col-lg-8">
         <div class="row g-4 mb-4">
-            <!-- Tarjeta 1 (Azul oscuro / Teal simulando la tarjeta de crédito) -->
+            <!-- Tarjeta 1: Resumen -->
             <div class="col-md-6">
-                <div class="ui-card bg-teal-card d-flex flex-column justify-content-between">
+                <div class="glass-card gradient-card h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="fs-5 fw-semibold"><i class="bi bi-building"></i> UPDS Sede</span>
-                            <span class="badge bg-light text-dark">Activo</span>
+                            <span class="fs-5 fw-semibold"><i class="bi bi-building me-2"></i> KeyFlow Sede</span>
+                            <span class="badge bg-white text-primary rounded-pill px-3">Live <span class="spinner-grow spinner-grow-sm text-danger ms-1" style="width: 0.5rem; height: 0.5rem;" role="status"></span></span>
                         </div>
-                        <h4 class="mb-1">Gestión Principal</h4>
-                        <p class="mb-4 opacity-75">Control de Accesos y Llaves</p>
+                        <h4 class="mb-1 text-white">Gestión de Llaves</h4>
+                        <p class="mb-4 text-white-50">Control de Accesos Dinámico</p>
                     </div>
                     <div class="d-flex justify-content-between align-items-end mt-4">
                         <div>
-                            <small class="opacity-75 d-block">Total Llaves Registradas</small>
-                            <span class="fs-3 fw-bold">1,248</span>
+                            <span class="dash-label text-white-50 d-block">Total Registradas</span>
+                            <span class="dash-number text-white skeleton" id="total-llaves">000</span>
                         </div>
-                        <i class="bi bi-key-fill fs-1 opacity-50"></i>
+                        <i class="bi bi-key-fill text-white opacity-25" style="font-size: 4rem; line-height: 1;"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Tarjeta 2 -->
+            <!-- Tarjeta 2: Préstamos Activos -->
             <div class="col-md-6">
-                <div class="ui-card text-center d-flex flex-column justify-content-center">
-                    <p class="card-title text-muted mb-2">Préstamos Activos</p>
-                    <h2 class="big-number mb-1">45</h2>
-                    <p class="number-subtitle mb-4">Al @DateTime.Now.ToString("dd 'de' MMMM, HH:mm")</p>
+                <div class="glass-card h-100 text-center d-flex flex-column justify-content-center">
+                    <span class="dash-label text-muted mb-2">Préstamos Activos</span>
+                    <h2 class="dash-number text-primary skeleton" id="prestamos-activos">00</h2>
+                    <p class="text-muted small mb-4">Actualizado al: <span id="current-time" class="skeleton">--:--</span></p>
                     
                     <div class="d-flex justify-content-center gap-3 mt-2">
-                        <a asp-controller="Prestamos" asp-action="Crear" class="btn btn-light rounded-3 px-4 py-2 border">
-                            <i class="bi bi-box-arrow-right d-block mb-1 fs-5"></i>
-                            Prestar
+                        <a asp-controller="Prestamos" asp-action="Crear" class="btn btn-primary rounded-pill px-4 shadow-sm hover-lift">
+                            <i class="bi bi-box-arrow-right me-2"></i> Prestar
                         </a>
-                        <a asp-controller="Prestamos" asp-action="Index" class="btn btn-light rounded-3 px-4 py-2 border">
-                            <i class="bi bi-box-arrow-in-left d-block mb-1 fs-5 text-success"></i>
-                            Recibir
+                        <a asp-controller="Prestamos" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 hover-lift">
+                            <i class="bi bi-box-arrow-in-left me-2"></i> Recibir
                         </a>
                     </div>
                 </div>
@@ -49,148 +202,219 @@
         </div>
 
         <!-- Tabla Actividad Reciente -->
-        <div class="ui-card">
+        <div class="glass-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Actividad Reciente</h5>
-                <a href="#" class="text-decoration-none text-muted small">Ver todo <i class="bi bi-chevron-right"></i></a>
+                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-activity text-primary me-2"></i>Actividad Reciente</h5>
+                <a asp-controller="Prestamos" asp-action="Index" class="text-decoration-none small text-primary fw-semibold">Ver todo <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-borderless align-middle">
-                    <thead>
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="text-muted small text-uppercase">
                         <tr>
-                            <th>Usuario / Persona</th>
+                            <th class="ps-0">Usuario / Persona</th>
                             <th>Llave / Ambiente</th>
-                            <th>Fecha y Hora</th>
-                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-0">Estado</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-light rounded-3 p-2 text-primary">
-                                        <i class="bi bi-person-circle fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 fw-semibold">Juan Pérez</h6>
-                                        <small class="text-muted">Docente</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">L-302</h6>
-                                <small class="text-muted">Laboratorio Redes</small>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">Hoy, 10:15 AM</h6>
-                            </td>
-                            <td>
-                                <span class="status-badge status-warning">Prestado</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-light rounded-3 p-2 text-success">
-                                        <i class="bi bi-person-circle fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 fw-semibold">Ana Gómez</h6>
-                                        <small class="text-muted">Administrativo</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">A-105</h6>
-                                <small class="text-muted">Aula Común</small>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">Ayer, 18:30 PM</h6>
-                            </td>
-                            <td>
-                                <span class="status-badge status-success">Devuelto</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-light rounded-3 p-2 text-primary">
-                                        <i class="bi bi-person-circle fs-4"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 fw-semibold">Carlos Ruiz</h6>
-                                        <small class="text-muted">Estudiante</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">AUD-1</h6>
-                                <small class="text-muted">Auditorio Principal</small>
-                            </td>
-                            <td>
-                                <h6 class="mb-0 fw-semibold">Ayer, 09:20 AM</h6>
-                            </td>
-                            <td>
-                                <span class="status-badge status-warning">Prestado</span>
-                            </td>
-                        </tr>
+                    <tbody id="actividad-table-body">
+                        <!-- Skeletons before load -->
+                        @for (int i = 0; i < 3; i++)
+                        {
+                            <tr>
+                                <td class="ps-0"><div class="skeleton" style="width: 150px; height: 20px; margin-bottom: 5px;"></div><div class="skeleton" style="width: 100px; height: 12px;"></div></td>
+                                <td><div class="skeleton" style="width: 80px; height: 20px; margin-bottom: 5px;"></div><div class="skeleton" style="width: 120px; height: 12px;"></div></td>
+                                <td><div class="skeleton" style="width: 100px; height: 20px;"></div></td>
+                                <td class="text-end pe-0"><div class="skeleton float-end" style="width: 80px; height: 24px; border-radius: 12px;"></div></td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Columna Derecha (Estadísticas secundarias) -->
+    <!-- Columna Derecha (Estadísticas y Alertas) -->
     <div class="col-lg-4">
-        <!-- Gráfico circular (simulado con HTML/CSS) -->
-        <div class="ui-card mb-4 text-center">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">Uso de Ambientes</h5>
+        <!-- Gráfico circular de ocupación -->
+        <div class="glass-card mb-4 text-center">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-pie-chart-fill text-info me-2"></i>Ocupación</h5>
                 <i class="bi bi-three-dots text-muted"></i>
             </div>
             
-            <!-- Simulación de Dona Chart -->
-            <div class="position-relative d-inline-block mt-3 mb-4">
-                <svg width="160" height="160" viewBox="0 0 160 160">
-                    <circle cx="80" cy="80" r="70" fill="none" stroke="#f1f5f9" stroke-width="15" />
-                    <circle cx="80" cy="80" r="70" fill="none" stroke="#0369a1" stroke-width="15" stroke-dasharray="330" stroke-dashoffset="80" stroke-linecap="round" transform="rotate(-90 80 80)" />
+            <div class="circular-progress my-4">
+                <svg viewBox="0 0 160 160">
+                    <circle class="bg" cx="80" cy="80" r="70" />
+                    <circle class="fg" cx="80" cy="80" r="70" id="circle-progress" />
                 </svg>
-                <div class="position-absolute top-50 start-50 translate-middle text-center">
-                    <h3 class="mb-0 fw-bold">75%</h3>
-                    <small class="text-muted">Ocupación</small>
+                <div class="circular-value">
+                    <h3 class="mb-0 fw-bold text-dark skeleton" id="ocupacion-percent" style="font-size: 1.8rem;">0%</h3>
                 </div>
             </div>
             
-            <div class="bg-light rounded-3 p-3">
-                <small class="text-muted d-block text-uppercase fw-semibold mb-1">Total Ambientes Usados</small>
-                <span class="fs-5 fw-bold text-dark">120 / 160</span>
+            <div class="bg-light rounded-3 p-3 mt-2 border">
+                <span class="dash-label text-muted d-block mb-1">Ambientes Usados</span>
+                <span class="fs-5 fw-bold text-dark skeleton" id="ambientes-ratio">0 / 0</span>
             </div>
         </div>
         
-        <!-- Alertas / Notificaciones pendientes -->
-        <div class="ui-card">
-            <h5 class="card-title mb-4">Alertas Pendientes</h5>
-            
-            <div class="d-flex align-items-start gap-3 mb-3 border-bottom pb-3">
-                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div>
-                    <h6 class="mb-1 fw-semibold">Llave no devuelta</h6>
-                    <p class="text-muted small mb-0">La llave L-205 debió devolverse a las 12:00.</p>
-                </div>
+        <!-- Alertas Dinámicas -->
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bell-fill text-warning me-2"></i>Alertas</h5>
+                <span class="badge bg-danger rounded-pill" id="alertas-badge">0</span>
             </div>
             
-            <div class="d-flex align-items-start gap-3">
-                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-                <div>
-                    <h6 class="mb-1 fw-semibold">Reserva próxima</h6>
-                    <p class="text-muted small mb-0">Reserva de Auditorio 2 por confirmar a las 15:00.</p>
+            <div id="alertas-container">
+                <!-- Skeletons -->
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <div class="skeleton rounded-circle" style="width: 40px; height: 40px; flex-shrink: 0;"></div>
+                    <div class="w-100">
+                        <div class="skeleton mb-2" style="width: 80%; height: 16px;"></div>
+                        <div class="skeleton" style="width: 100%; height: 12px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Function to fetch data from API
+            function fetchDashboardData() {
+                $.ajax({
+                    url: '@Url.Action("GetDashboardData", "Home")',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        updateDashboardDOM(data);
+                    },
+                    error: function (err) {
+                        console.error("Error fetching dashboard data:", err);
+                    }
+                });
+            }
+
+            // Function to update the DOM elements
+            function updateDashboardDOM(data) {
+                // Remove skeleton loaders safely
+                $('.skeleton').removeClass('skeleton');
+
+                // Update text values with a mild counter animation
+                animateValue("total-llaves", parseInt($('#total-llaves').text()) || 0, data.totalLlaves, 1000);
+                animateValue("prestamos-activos", parseInt($('#prestamos-activos').text()) || 0, data.prestamosActivos, 1000);
+                
+                $('#current-time').text(data.currentTime);
+
+                // Update Progress Circle
+                let limit = data.ambientesTotal > 0 ? data.ambientesTotal : 1;
+                let ocupacion = Math.round((data.ambientesUsados / limit) * 100);
+                $('#ocupacion-percent').text(ocupacion + '%');
+                $('#ambientes-ratio').text(data.ambientesUsados + ' / ' + data.ambientesTotal);
+
+                // Calculate dash offset: full is 440, offset = 440 - (440 * pct / 100)
+                let pct = ocupacion > 100 ? 100 : ocupacion;
+                let dashOffset = 440 - (440 * pct / 100);
+                $('#circle-progress').css('stroke-dashoffset', dashOffset);
+
+                // Update Table
+                let tableHtml = '';
+                if(data.actividadReciente && data.actividadReciente.length > 0) {
+                    data.actividadReciente.forEach((item, index) => {
+                        let badgeClass = item.estado === 'Prestado' ? 'badge-prestado' : 'badge-devuelto';
+                        let rowDelay = index * 0.1; // staggered animation
+                        
+                        tableHtml += `
+                            <tr class="fade-in-row" style="animation-delay: ${rowDelay}s">
+                                <td class="ps-0">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-light rounded-circle p-2 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold text-dark">${item.usuario}</h6>
+                                            <small class="text-muted">${item.rol}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h6 class="mb-0 fw-bold text-dark">${item.llave}</h6>
+                                    <small class="text-muted">${item.ambiente}</small>
+                                </td>
+                                <td>
+                                    <span class="text-dark fw-medium">${item.fecha}</span>
+                                </td>
+                                <td class="text-end pe-0">
+                                    <span class="status-badge ${badgeClass}">${item.estado}</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tableHtml = '<tr><td colspan="4" class="text-center text-muted py-4">No hay actividad reciente.</td></tr>';
+                }
+                $('#actividad-table-body').html(tableHtml);
+
+                // Update Alerts
+                $('#alertas-badge').text(data.alertas ? data.alertas.length : 0);
+                let alertasHtml = '';
+                if(data.alertas && data.alertas.length > 0) {
+                    data.alertas.forEach((alerta) => {
+                        alertasHtml += `
+                            <div class="d-flex align-items-start gap-3 mb-3 border-bottom pb-3 fade-in-row">
+                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 flex-shrink-0">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark">${alerta.titulo}</h6>
+                                    <p class="text-muted small mb-0">${alerta.mensaje}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    alertasHtml = '<p class="text-muted small text-center my-3">Todo en orden. No hay alertas.</p>';
+                }
+                $('#alertas-container').html(alertasHtml);
+            }
+
+            // Simple counter animation
+            function animateValue(id, start, end, duration) {
+                if (start === end) {
+                    document.getElementById(id).innerHTML = end;
+                    return;
+                }
+                let current = start;
+                let increment = end > start ? 1 : -1;
+                // Avoid too many steps if difference is large
+                let diff = Math.abs(end - start);
+                let stepTime = Math.max(Math.abs(Math.floor(duration / diff)), 20); 
+                
+                let obj = document.getElementById(id);
+                let timer = setInterval(function() {
+                    // Larger increments if difference is huge to finish on time
+                    if(Math.abs(end - current) > 100) {
+                        current += increment * 10;
+                    } else {
+                        current += increment;
+                    }
+                    obj.innerHTML = current;
+                    if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                        obj.innerHTML = end;
+                        clearInterval(timer);
+                    }
+                }, stepTime);
+            }
+
+            // Initial fetch
+            fetchDashboardData();
+
+            // Setup polling every 5 seconds
+            setInterval(fetchDashboardData, 5000);
+        });
+    </script>
+}

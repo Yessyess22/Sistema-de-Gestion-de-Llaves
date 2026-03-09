@@ -1,0 +1,155 @@
+@{
+    ViewData["Title"] = "Nueva Reserva";
+}
+
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#0f172a; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-calendar-plus me-2" style="color:#0369a1;"></i>Registrar Reserva
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Complete los datos para reservar una llave</p>
+    </div>
+    <a asp-controller="Reservas" asp-action="Index"
+       class="btn d-flex align-items-center gap-2 px-4 py-2"
+       style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+</div>
+
+<!-- Toast -->
+<div id="toast-box" class="position-fixed top-0 end-0 p-3" style="z-index:9999;"></div>
+
+<!-- Formulario -->
+<div class="ui-card" style="max-width:680px;">
+    <h3 class="card-title mb-4">Datos de la Reserva</h3>
+
+    <div id="alertMsg" class="alert d-flex align-items-center gap-2 mb-4"
+         style="display:none !important; border:none; border-radius:12px;"></div>
+
+    <div class="row g-3">
+
+        <!-- Llave -->
+        <div class="col-12">
+            <label for="idLlave" class="form-label fw-600"
+                   style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                Llave <span class="text-danger">*</span>
+            </label>
+            <select id="idLlave" class="form-select"
+                    style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
+                <option value="">-- Seleccione una llave --</option>
+                @foreach (var item in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewData["Llaves"]!)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- Persona -->
+        <div class="col-12">
+            <label for="idPersona" class="form-label fw-600"
+                   style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                Persona <span class="text-danger">*</span>
+            </label>
+            <select id="idPersona" class="form-select"
+                    style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
+                <option value="">-- Seleccione la persona --</option>
+                @foreach (var item in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewData["Personas"]!)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- Fechas -->
+        <div class="col-md-6">
+            <label for="fechaInicio" class="form-label fw-600"
+                   style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                Fecha de Inicio <span class="text-danger">*</span>
+            </label>
+            <input type="datetime-local" id="fechaInicio" class="form-control"
+                   style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+        </div>
+
+        <div class="col-md-6">
+            <label for="fechaFin" class="form-label fw-600"
+                   style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                Fecha de Fin <span class="text-danger">*</span>
+            </label>
+            <input type="datetime-local" id="fechaFin" class="form-control"
+                   style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 d-flex gap-3 mt-2">
+            <button id="btnGuardar" onclick="registrarReserva()" class="btn px-5 py-2"
+                    style="background:#0369a1; color:white; border-radius:12px; font-weight:600; border:none;">
+                <i class="bi bi-check-lg me-1"></i>Registrar Reserva
+            </button>
+            <a asp-controller="Reservas" asp-action="Index" class="btn px-4 py-2"
+               style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+                Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function registrarReserva() {
+        const idLlave   = parseInt(document.getElementById('idLlave').value);
+        const idPersona = parseInt(document.getElementById('idPersona').value);
+        const inicioRaw = document.getElementById('fechaInicio').value;
+        const finRaw    = document.getElementById('fechaFin').value;
+
+        if (!idLlave)   return mostrarAlert('Debe seleccionar una llave.', false);
+        if (!idPersona) return mostrarAlert('Debe seleccionar una persona.', false);
+        if (!inicioRaw) return mostrarAlert('Debe indicar la fecha de inicio.', false);
+        if (!finRaw)    return mostrarAlert('Debe indicar la fecha de fin.', false);
+
+        const idUsuario = parseInt(document.querySelector('meta[name="uid"]')?.content ?? '0') || 1;
+
+        const payload = {
+            idLlave,
+            idPersona,
+            idUsuario,
+            fechaInicio: new Date(inicioRaw).toISOString(),
+            fechaFin:    new Date(finRaw).toISOString()
+        };
+
+        const btn = document.getElementById('btnGuardar');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando…';
+
+        try {
+            const res  = await fetch('/api/reservas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+
+            if (json.exito) {
+                mostrarAlert(json.mensaje, true);
+                setTimeout(() => window.location.href = '@Url.Action("Index", "Reservas")', 1200);
+            } else {
+                mostrarAlert(json.mensaje, false);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Registrar Reserva';
+            }
+        } catch {
+            mostrarAlert('Error de conexión. Intente nuevamente.', false);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Registrar Reserva';
+        }
+    }
+
+    function mostrarAlert(msg, exito) {
+        const el = document.getElementById('alertMsg');
+        el.style.display = 'flex';
+        el.style.background = exito ? '#dcfce7' : '#fee2e2';
+        el.style.color      = exito ? '#166534' : '#991b1b';
+        el.innerHTML = `<i class="bi bi-${exito ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i> ${msg}`;
+    }
+</script>
+}

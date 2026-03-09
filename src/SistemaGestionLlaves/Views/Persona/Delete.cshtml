@@ -4,54 +4,67 @@
     ViewData["Title"] = "Eliminar Persona";
 }
 
-<h2 class="mb-4 text-danger">Eliminar Persona</h2>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold" style="color:#991b1b; font-size:1.4rem; margin-bottom:2px;">
+            <i class="bi bi-trash me-2"></i>Eliminar Persona
+        </h2>
+        <p class="mb-0" style="color:#64748b; font-size:0.875rem;">Esta acción es permanente y no se puede revertir.</p>
+    </div>
+    <a asp-action="Index" class="btn d-flex align-items-center gap-2 px-4 py-2"
+       style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+</div>
 
-<div class="card shadow border-danger">
-    <div class="card-body">
+<div class="ui-card" style="max-width:600px;">
+    <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background:#fee2e2; border-radius:12px;">
+        <i class="bi bi-exclamation-triangle-fill" style="color:#991b1b; font-size:1.5rem; flex-shrink:0;"></i>
+        <p class="mb-0 fw-semibold" style="color:#7f1d1d;">
+            ¿Estás seguro de que deseas eliminar esta persona?
+        </p>
+    </div>
 
-        <h5 class="text-danger">
-            ¿Estás segura de que deseas eliminar esta persona?
-        </h5>
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:48px; height:48px; background:#e0f2fe; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#0369a1; flex-shrink:0;">
+                <i class="bi bi-person fs-5"></i>
+            </div>
+            <div>
+                <p class="mb-0 fw-bold" style="color:#0f172a;">@Model.NombreCompleto</p>
+                <p class="mb-0" style="color:#64748b; font-size:0.875rem;">CI: @Model.Ci</p>
+            </div>
+        </div>
 
-        <hr />
+        @if (!string.IsNullOrEmpty(Model.Correo))
+        {
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-envelope" style="color:#94a3b8; width:16px;"></i>
+                <span style="color:#334155;">@Model.Correo</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Celular))
+        {
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-phone" style="color:#94a3b8; width:16px;"></i>
+                <span style="color:#334155;">@Model.Celular</span>
+            </div>
+        }
+    </div>
 
-        <dl class="row">
-            <dt class="col-sm-3">Nombre Completo</dt>
-            <dd class="col-sm-9">@Model.NombreCompleto</dd>
+    <hr style="border-color:#e2e8f0;" />
 
-            <dt class="col-sm-3">CI</dt>
-            <dd class="col-sm-9">@Model.Ci</dd>
-
-            <dt class="col-sm-3">Correo</dt>
-            <dd class="col-sm-9">@Model.Correo</dd>
-
-            <dt class="col-sm-3">Celular</dt>
-            <dd class="col-sm-9">@Model.Celular</dd>
-
-            <dt class="col-sm-3">Estado</dt>
-            <dd class="col-sm-9">
-                @if (Model.Estado == "A")
-                {
-                    <span class="badge bg-success">Activo</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">Inactivo</span>
-                }
-            </dd>
-        </dl>
-
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="IdPersona" />
-
-            <button type="submit" class="btn btn-danger">
-                Sí, Eliminar
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="IdPersona" />
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn px-4 py-2"
+                    style="background:#dc2626; color:white; border-radius:12px; font-weight:600; border:none;">
+                <i class="bi bi-trash me-1"></i>Sí, Eliminar
             </button>
-
-            <a asp-action="Index" class="btn btn-secondary">
+            <a asp-action="Index" class="btn px-4 py-2"
+               style="background:#f1f5f9; color:#64748b; border-radius:12px; font-weight:600; border:none;">
                 Cancelar
             </a>
-        </form>
-
-    </div>
+        </div>
+    </form>
 </div>
