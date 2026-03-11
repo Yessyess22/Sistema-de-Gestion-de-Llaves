@@ -981,17 +981,38 @@ public class ReportesController : Controller
             {
                 page.Size(PageSizes.A4);
                 page.Margin(28);
-                page.DefaultTextStyle(x => x.FontSize(10));
+                page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
 
-                page.Header().Column(col =>
+                // Cabecera con franja azul (Estilo UPDS)
+                page.Header().Background("#0369a1").Padding(12).Row(row =>
                 {
-                    col.Item().Text(title).SemiBold().FontSize(16);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontColor(Colors.Grey.Darken1);
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("Universidad Privada Domingo Savio — UPDS").FontSize(10).FontColor(Colors.White).SemiBold();
+                        col.Item().Text(title).FontSize(18).FontColor(Colors.White).ExtraBold();
+                    });
+
+                    row.ConstantItem(150).Column(col =>
+                    {
+                        col.Item().AlignRight().Text("SISTEMA DE GESTIÓN DE LLAVES").FontSize(8).FontColor(Colors.White).SemiBold();
+                        col.Item().AlignRight().PaddingTop(4).Text($"Descargado: {DateTime.Now:dd/MM/yyyy}").FontSize(9).FontColor("#e0f2fe");
+                        col.Item().AlignRight().Text($"Hora: {DateTime.Now:HH:mm}").FontSize(9).FontColor("#e0f2fe");
+                    });
                 });
 
-                page.Content().PaddingTop(12).Element(contentAction);
+                page.Content().PaddingVertical(15).Element(contentAction);
 
-                page.Footer().AlignRight().Text(footerText).FontColor(Colors.Grey.Darken1);
+                page.Footer().PaddingTop(8).BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Row(row =>
+                {
+                    row.RelativeItem().Text(footerText).FontColor(Colors.Grey.Medium).FontSize(9);
+                    row.RelativeItem().AlignRight().Text(x =>
+                    {
+                        x.Span("Página ").FontColor(Colors.Grey.Medium);
+                        x.CurrentPageNumber().SemiBold();
+                        x.Span(" de ").FontColor(Colors.Grey.Medium);
+                        x.TotalPages().SemiBold();
+                    });
+                });
             });
         }).GeneratePdf();
     }

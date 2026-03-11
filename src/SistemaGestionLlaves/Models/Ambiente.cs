@@ -11,13 +11,16 @@ public class Ambiente
 
     [Required(ErrorMessage = "El código es obligatorio")]
     [MaxLength(20, ErrorMessage = "El código no puede exceder los 20 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9\s-]*$", ErrorMessage = "El código solo puede contener letras, números, espacios y guiones.")]
     public string Codigo { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El nombre del ambiente es obligatorio")]
     [MaxLength(150, ErrorMessage = "El nombre no puede exceder los 150 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]*$", ErrorMessage = "No se permiten caracteres especiales.")]
     public string Nombre { get; set; } = string.Empty;
 
     [MaxLength(200, ErrorMessage = "La ubicación no puede exceder los 200 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s,.-]*$", ErrorMessage = "La ubicación contiene caracteres no permitidos.")]
     public string? Ubicacion { get; set; }
 
     [Required(ErrorMessage = "El tipo de ambiente es obligatorio")]

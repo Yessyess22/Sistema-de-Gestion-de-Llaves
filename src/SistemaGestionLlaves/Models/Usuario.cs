@@ -14,6 +14,7 @@ public class Usuario
 
     [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
     [StringLength(80, MinimumLength = 4, ErrorMessage = "El nombre de usuario debe tener entre 4 y 80 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*$", ErrorMessage = "El nombre de usuario no puede contener caracteres especiales ni espacios.")]
     [Display(Name = "Nombre de Usuario")]
     public string NombreUsuario { get; set; } = string.Empty;
 

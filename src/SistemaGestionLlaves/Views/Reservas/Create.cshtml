@@ -12,7 +12,7 @@
 
     <div class="mb-3">
         <label class="form-label">Llave</label>
-        <select id="IdLlave" class="form-select">
+        <select id="IdLlave" class="form-select search-select">
             <option value="">Seleccione una llave</option>
             @foreach (var item in ViewBag.Llaves)
             {
@@ -23,7 +23,7 @@
 
     <div class="mb-3">
         <label class="form-label">Persona</label>
-        <select id="IdPersona" class="form-select">
+        <select id="IdPersona" class="form-select search-select">
             <option value="">Seleccione una persona</option>
             @foreach (var item in ViewBag.Personas)
             {
@@ -64,6 +64,22 @@
 
 @section Scripts {
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+    
+    const inputInicio = document.getElementById('FechaInicio');
+    const inputFin = document.getElementById('FechaFin');
+    
+    if (inputInicio) inputInicio.min = localISOTime;
+    if (inputFin) inputFin.min = localISOTime;
+    
+    // Validar que fin sea mayor a inicio dinámicamente
+    inputInicio?.addEventListener('change', function() {
+        if (inputFin) inputFin.min = this.value;
+    });
+});
 
 async function guardarReserva() {
 

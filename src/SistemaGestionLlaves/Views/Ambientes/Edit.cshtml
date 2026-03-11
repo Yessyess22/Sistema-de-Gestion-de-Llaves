@@ -22,26 +22,26 @@
 
         <div class="col-md-6">
             <label asp-for="Codigo" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Código</label>
-            <input asp-for="Codigo" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <input asp-for="Codigo" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" data-validation="alphanumeric" />
             <span asp-validation-for="Codigo" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="Nombre" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Nombre / Descripción</label>
-            <input asp-for="Nombre" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <input asp-for="Nombre" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" data-validation="alphanumeric" />
             <span asp-validation-for="Nombre" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Tipo de Ambiente</label>
-            <select asp-for="IdTipo" class="form-select" asp-items="ViewBag.Tipos" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
+            <select asp-for="IdTipo" class="form-select search-select" asp-items="ViewBag.Tipos" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
             </select>
             <span asp-validation-for="IdTipo" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="Ubicacion" class="form-label" style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Ubicación</label>
-            <input asp-for="Ubicacion" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" />
+            <input asp-for="Ubicacion" class="form-control" style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;" data-validation="alphanumeric" />
             <span asp-validation-for="Ubicacion" class="text-danger"></span>
         </div>
 

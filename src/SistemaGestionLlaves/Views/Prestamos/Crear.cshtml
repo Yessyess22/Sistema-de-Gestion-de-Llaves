@@ -35,7 +35,7 @@
                    style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
                 Llave <span class="text-danger">*</span>
             </label>
-            <select id="idLlave" class="form-select"
+            <select id="idLlave" class="form-select search-select"
                     style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
                 <option value="">-- Seleccione una llave disponible --</option>
                 @foreach (var item in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewData["Llaves"]!)
@@ -51,7 +51,7 @@
                    style="color:#64748b; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
                 Persona <span class="text-danger">*</span>
             </label>
-            <select id="idPersona" class="form-select"
+            <select id="idPersona" class="form-select search-select"
                     style="border-color:#e2e8f0; background:#f8fafc; border-radius:12px;">
                 <option value="">-- Seleccione la persona --</option>
                 @foreach (var item in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewData["Personas"]!)
@@ -130,8 +130,18 @@
         canvas.getContext("2d").scale(ratio, ratio);
         signaturePad.clear();
     }
+    
+    // Restricción de fecha mínima (hoy)
+    function setMinDate() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+        document.getElementById('fechaDevolucion').min = localISOTime;
+    }
+
     window.onresize = resizeCanvas;
     resizeCanvas();
+    setMinDate();
 
     document.getElementById('btnClearSignature').addEventListener('click', () => signaturePad.clear());
 

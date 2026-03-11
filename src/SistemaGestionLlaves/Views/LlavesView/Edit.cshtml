@@ -64,7 +64,7 @@
                         Código <span class="text-danger">*</span>
                     </label>
                     <input asp-for="Codigo" class="form-control"
-                           style="border-color:#e2e8f0; border-radius:12px; padding:12px 16px; background:#f8fafc;" />
+                           style="border-color:#e2e8f0; border-radius:12px; padding:12px 16px; background:#f8fafc;" data-validation="alphanumeric" />
                     <span asp-validation-for="Codigo" class="text-danger small mt-1 d-block"></span>
                 </div>
 
@@ -75,7 +75,7 @@
                         Ambiente <span class="text-danger">*</span>
                     </label>
                     <select asp-for="IdAmbiente" asp-items="@((SelectList)ViewData["IdAmbiente"])"
-                            class="form-select"
+                            class="form-select search-select"
                             style="border-color:#e2e8f0; border-radius:12px; padding:12px 16px; background:#f8fafc;">
                         <option value="">-- Selecciona un ambiente --</option>
                     </select>

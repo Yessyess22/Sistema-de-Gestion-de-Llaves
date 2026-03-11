@@ -187,6 +187,19 @@ public class PrestamosApiController : ControllerBase
             return UnprocessableEntity(new ApiResponse(false,
                 $"La llave '{llave.Codigo}' ya tiene un préstamo activo."));
 
+        // Regla 3: Validar que no haya una reserva de OTRA persona para este momento
+        var ahora = DateTime.UtcNow;
+        var reservaActiva = await _db.Reservas
+            .FirstOrDefaultAsync(r => r.IdLlave == dto.IdLlave && 
+                                     (r.Estado == "P" || r.Estado == "C") &&
+                                     r.FechaInicio <= ahora && r.FechaFin >= ahora);
+
+        if (reservaActiva != null && reservaActiva.IdPersona != dto.IdPersona)
+        {
+            return UnprocessableEntity(new ApiResponse(false,
+                $"La llave '{llave.Codigo}' está reservada por otra persona en este horario."));
+        }
+
         // Verificar que la persona existe y está activa
         var persona = await _db.Personas.FindAsync(dto.IdPersona);
         if (persona == null)

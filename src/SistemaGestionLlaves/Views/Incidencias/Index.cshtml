@@ -17,7 +17,15 @@
 {
     <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
@@ -91,11 +99,41 @@
                                         }
                                     </div>
 
+                                    <!-- Modal Ver Detalles -->
+                                    <div class="modal fade" id="modalVer-@item.IdIncidencia" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <div class="modal-header border-0 bg-light">
+                                                    <h5 class="modal-title fw-bold">Detalle de Incidencia #@item.IdIncidencia</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <dl class="row">
+                                                        <dt class="col-sm-4">Llave</dt><dd class="col-sm-8">@item.Llave.Codigo</dd>
+                                                        <dt class="col-sm-4">Ambiente</dt><dd class="col-sm-8">@(item.Llave.Ambiente?.Nombre ?? "Sin amb.")</dd>
+                                                        <dt class="col-sm-4">Tipo</dt><dd class="col-sm-8">@item.TipoIncidencia</dd>
+                                                        <dt class="col-sm-4">Descripción</dt><dd class="col-sm-8">@item.Descripcion</dd>
+                                                        <dt class="col-sm-4">Reportado</dt><dd class="col-sm-8">@item.FechaReporte.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+                                                        @if (item.Estado == "R")
+                                                        {
+                                                            <dt class="col-sm-4">Resolución</dt><dd class="col-sm-8">@item.NotasResolucion</dd>
+                                                            <dt class="col-sm-4">Fecha Res.</dt><dd class="col-sm-8">@item.FechaResolucion?.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+                                                        }
+                                                    </dl>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Modal Resolver -->
                                     <div class="modal fade" id="modalResolver-@item.IdIncidencia" tabindex="-1">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content border-0 shadow">
                                                 <form asp-action="Resolver" method="post">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="id" value="@item.IdIncidencia" />
                                                     <div class="modal-header border-0 bg-light">
                                                         <h5 class="modal-title fw-bold">Resolver Incidencia</h5>
@@ -104,7 +142,7 @@
                                                     <div class="modal-body p-4">
                                                         <div class="mb-3">
                                                             <label class="form-label fw-bold">Notas de Resolución</label>
-                                                            <textarea name="notas" class="form-control" rows="3" required placeholder="Describe cómo se solucionó el problema..."></textarea>
+                                                            <textarea name="notas" class="form-control" rows="3" required placeholder="Describe cómo se solucionó el problema..." data-validation="alphanumeric"></textarea>
                                                         </div>
                                                         <div class="alert alert-info py-2 small border-0">
                                                             <i class="bi bi-info-circle-fill me-2"></i> Al resolver esta incidencia, la llave volverá a estar disponible para préstamos.
@@ -133,6 +171,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <form asp-action="Registrar" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-header border-0 bg-primary text-white">
                     <h5 class="modal-title fw-bold">Reportar Daño o Incidencia</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -140,7 +179,7 @@
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Seleccionar Llave</label>
-                        <select name="IdLlave" class="form-select" asp-items="ViewBag.Llaves" required>
+                        <select name="IdLlave" class="form-select search-select" asp-items="ViewBag.Llaves" required>
                             <option value="">-- Seleccionar Llave --</option>
                         </select>
                     </div>
@@ -156,7 +195,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Descripción del Problema</label>
-                        <textarea name="Descripcion" class="form-control" rows="4" required placeholder="Explica detalladamente qué sucede..."></textarea>
+                        <textarea name="Descripcion" class="form-control" rows="4" required placeholder="Explica detalladamente qué sucede..." data-validation="alphanumeric"></textarea>
                     </div>
                     <div class="alert alert-warning py-2 small border-0">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i> Esta acción <strong>BLOQUEARÁ</strong> la llave automáticamente.

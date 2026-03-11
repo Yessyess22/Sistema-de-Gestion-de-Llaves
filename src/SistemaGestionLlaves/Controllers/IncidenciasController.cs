@@ -37,6 +37,11 @@ namespace SistemaGestionLlaves.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar(Incidencia incidencia)
         {
+            // Remover validación para campos que el controlador asigna manualmente
+            ModelState.Remove("FechaReporte");
+            ModelState.Remove("Estado");
+            ModelState.Remove("Llave");
+
             if (ModelState.IsValid)
             {
                 incidencia.FechaReporte = DateTime.UtcNow;
@@ -56,7 +61,12 @@ namespace SistemaGestionLlaves.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Error"] = "Error al registrar la incidencia. Verifique los datos.";
+            // Capturar errores de validación para logging o depuración si fuera necesario
+            var errors = string.Join(" | ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage));
+
+            TempData["Error"] = "Error al registrar la incidencia: " + (string.IsNullOrEmpty(errors) ? "Verifique los datos." : errors);
             return RedirectToAction(nameof(Index));
         }
 

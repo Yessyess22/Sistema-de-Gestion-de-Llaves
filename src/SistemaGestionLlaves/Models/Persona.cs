@@ -11,11 +11,13 @@ public class Persona
 
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [MaxLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]*$", ErrorMessage = "No se permiten caracteres especiales.")]
     [Display(Name = "Nombres")]
     public string Nombres { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El apellido es obligatorio")]
     [MaxLength(100, ErrorMessage = "El apellido no puede exceder los 100 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]*$", ErrorMessage = "No se permiten caracteres especiales.")]
     [Display(Name = "Apellidos")]
     public string Apellidos { get; set; } = string.Empty;
 
@@ -23,6 +25,7 @@ public class Persona
 
     [Required(ErrorMessage = "La cédula de identidad (CI) es obligatoria")]
     [MaxLength(20, ErrorMessage = "El CI no puede exceder los 20 caracteres")]
+    [RegularExpression(@"^[0-9]*$", ErrorMessage = "Solo se permiten números.")]
     [Display(Name = "Cédula de Identidad")]
     public string Ci { get; set; } = string.Empty;
 
@@ -42,6 +45,7 @@ public class Persona
 
     [MaxLength(20, ErrorMessage = "El celular no puede exceder los 20 caracteres")]
     [Phone(ErrorMessage = "El formato de número telefónico no es válido")]
+    [RegularExpression(@"^[0-9]*$", ErrorMessage = "Solo se permiten números.")]
     [Display(Name = "Celular/Teléfono")]
     public string? Celular { get; set; }
 

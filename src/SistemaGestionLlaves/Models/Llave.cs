@@ -10,7 +10,8 @@ public class Llave
     public int IdLlave { get; set; }
 
     [Required(ErrorMessage = "El código es obligatorio")]
-    [MaxLength(30)]
+    [MaxLength(30, ErrorMessage = "El código no puede exceder los 30 caracteres")]
+    [RegularExpression(@"^[a-zA-Z0-9-]*$", ErrorMessage = "El código solo puede contener letras, números y guiones.")]
     public string Codigo { get; set; } = string.Empty;
 
     /// <summary>Número de copias físicas que existen</summary>

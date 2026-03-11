@@ -82,6 +82,10 @@ namespace SistemaGestionLlaves.Controllers
             if (llave.Estado == "M")
                 return BadRequest(new { exito = false, mensaje = $"La llave '{llave.Codigo}' está bloqueada por mantenimiento." });
 
+            if (llave.Estado == "P")
+                return BadRequest(new { exito = false, mensaje = $"La llave '{llave.Codigo}' está actualmente prestada. Espere a que sea devuelta para reservar." });
+
+
             // VALIDACIÓN: NO SOLAPAMIENTO
             bool existeConflicto = await _context.Reservas.AnyAsync(r =>
                 r.IdLlave == dto.IdLlave &&

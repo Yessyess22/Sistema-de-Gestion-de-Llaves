@@ -122,6 +122,34 @@ namespace SistemaGestionLlaves.Controllers
                     var ci = row.Cell(1).GetValue<string>()?.Trim();
                     if (string.IsNullOrEmpty(ci)) continue;
 
+                    // Validaciones de caracteres
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(ci, @"^[0-9]*$"))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El CI '{ci}' contiene caracteres no permitidos (solo números).");
+                        continue;
+                    }
+
+                    var nombres = row.Cell(2).GetValue<string>()?.Trim() ?? "";
+                    var apellidos = row.Cell(3).GetValue<string>()?.Trim() ?? "";
+                    var regexAlpha = @"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]*$";
+
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(nombres, regexAlpha) || 
+                        !System.Text.RegularExpressions.Regex.IsMatch(apellidos, regexAlpha))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El nombre o apellido contiene caracteres especiales no permitidos.");
+                        continue;
+                    }
+
+                    var celular = row.Cell(4).GetValue<string>()?.Trim() ?? "";
+                    if (!string.IsNullOrEmpty(celular) && !System.Text.RegularExpressions.Regex.IsMatch(celular, @"^[0-9]*$"))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El celular '{celular}' contiene caracteres no permitidos (solo números).");
+                        continue;
+                    }
+
                     if (await _context.Personas.AnyAsync(p => p.Ci == ci))
                     {
                         result.RegistrosSaltados++;
@@ -132,9 +160,9 @@ namespace SistemaGestionLlaves.Controllers
                     var persona = new Persona
                     {
                         Ci = ci,
-                        Nombres = row.Cell(2).GetValue<string>()?.Trim() ?? "Sin Nombre",
-                        Apellidos = row.Cell(3).GetValue<string>()?.Trim() ?? "Sin Apellido",
-                        Celular = row.Cell(4).GetValue<string>()?.Trim(),
+                        Nombres = string.IsNullOrEmpty(nombres) ? "Sin Nombre" : nombres,
+                        Apellidos = string.IsNullOrEmpty(apellidos) ? "Sin Apellido" : apellidos,
+                        Celular = celular,
                         Correo = row.Cell(5).GetValue<string>()?.Trim(),
                         Estado = "A"
                     };
@@ -163,6 +191,32 @@ namespace SistemaGestionLlaves.Controllers
                     var codigo = row.Cell(2).GetValue<string>()?.Trim();
                     if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(codigo)) continue;
 
+                    // Validaciones de caracteres
+                    var regexAlpha = @"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]*$";
+                    var regexCodigoAmb = @"^[a-zA-Z0-9\s-]*$";
+
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(nombre, regexAlpha))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El nombre del ambiente '{nombre}' contiene caracteres especiales no permitidos.");
+                        continue;
+                    }
+
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(codigo, regexCodigoAmb))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El código de ambiente '{codigo}' solo puede contener letras, números, espacios y guiones.");
+                        continue;
+                    }
+
+                    var ubicacion = row.Cell(4).GetValue<string>()?.Trim() ?? "";
+                    if (!string.IsNullOrEmpty(ubicacion) && !System.Text.RegularExpressions.Regex.IsMatch(ubicacion, @"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s,.-]*$"))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: La ubicación contiene caracteres no permitidos.");
+                        continue;
+                    }
+
                     if (await _context.Ambientes.AnyAsync(a => a.Nombre == nombre || a.Codigo == codigo))
                     {
                         result.RegistrosSaltados++;
@@ -184,7 +238,7 @@ namespace SistemaGestionLlaves.Controllers
                         Nombre = nombre,
                         Codigo = codigo,
                         IdTipo = tipo.IdTipo,
-                        Ubicacion = row.Cell(4).GetValue<string>()?.Trim(),
+                        Ubicacion = ubicacion,
                         Estado = "A"
                     };
 
@@ -208,6 +262,14 @@ namespace SistemaGestionLlaves.Controllers
                 {
                     var codigo = row.Cell(1).GetValue<string>()?.Trim();
                     if (string.IsNullOrEmpty(codigo)) continue;
+
+                    // Validación de caracteres para código de llave
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(codigo, @"^[a-zA-Z0-9-]*$"))
+                    {
+                        result.RegistrosFallidos++;
+                        result.Log.Add($"Fila {row.RowNumber()}: El código de llave '{codigo}' solo puede contener letras, números y guiones.");
+                        continue;
+                    }
 
                     if (await _context.Llaves.AnyAsync(l => l.Codigo == codigo))
                     {
